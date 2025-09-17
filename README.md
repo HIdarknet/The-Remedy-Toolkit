@@ -215,9 +215,11 @@ All contributors whose Pull Requests are accepted will **receive a free commerci
 
 This project is **proprietary software**. All rights are reserved by Cairo Creative Studios, as designated by the creator of the Toolkit, Chad Wolfe.  
 
-- The source code may not be copied, modified, or redistributed without explicit permission.  
-- Commercial licensing inquiries can be made at **[TheChayed@Gmail.com]**.  
+- The source code is provided for evaluation and contribution purposes only.  
+- You may not copy, modify, or redistribute this project outside of submitting contributions through Pull Requests.  
+- Commercial use requires a license. Inquiries can be made at **[TheChayed@Gmail.com]**.  
 - Contributors with accepted Pull Requests will be granted a free commercial license key.  
+- A commercial license key grants the right to **use the Remedy Toolkit in commercial projects**, but **does not grant redistribution or resale rights**.  
 
 ---
 
