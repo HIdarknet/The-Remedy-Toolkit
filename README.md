@@ -27,6 +27,18 @@ Built from the ground up with SOLID principles, the Remedy Toolkit provides deve
 
 ---
 
+## 🎮 Powered by Remedy Toolkit
+
+Here are some projects and demos built using The Remedy Toolkit:
+
+| Game / Demo | Clip |
+|------------|------|
+|     *Tails Adventure Armada Fangame*     | ![Clip](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExajgxdXI5eDA2cGZjb2RqMDJzdDFkMDd1MmVjMWljbTZuNzV4OGNzaCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qqkFbqJ4PkAWFTJuj5/giphy.gif) |
+
+> All clips are captured in real-time to showcase **performance, node-based workflows, and gameplay features** powered by Remedy Toolkit.
+
+---
+
 ## 🚀 Core Features
 
 ### 🎨 **Schematics Editor**
