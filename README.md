@@ -33,7 +33,7 @@ Here are some projects and demos built using The Remedy Toolkit:
 
 | Game / Demo | Clip |
 |------------|------|
-|     *Tails Adventure Armada Fangame*     | ![Clip](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExajgxdXI5eDA2cGZjb2RqMDJzdDFkMDd1MmVjMWljbTZuNzV4OGNzaCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qqkFbqJ4PkAWFTJuj5/giphy.gif) |
+| *Tails Adventure Armada Fangame* | ![Clip](https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdDY1YXZuZHR2YmFmOTk3MWJkZWZjODhjeGhpMDV0MW1tY2o0empkaCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/EWck3vB2ObLlX5e3SX/giphy.gif) |
 
 > All clips are captured in real-time to showcase **performance, node-based workflows, and gameplay features** powered by Remedy Toolkit.
 
@@ -42,6 +42,7 @@ Here are some projects and demos built using The Remedy Toolkit:
 ## 🚀 Core Features
 
 ### 🎨 **Schematics Editor**
+![Clip](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcjFuOXNxZHQ3dGUybHFxOTlqbHA2aTU1eXAzcjNzeWc3eHg4ZHcydiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/GJL1EekvjLFr5P7mgl/giphy.gif)
 - **Visual node-based development** Unreal Blueprint-inspired interface
 - **IODock system** for drag-and-drop component wiring backed by automated ScriptableEvent creation and management
 - **Prefab-driven architecture** with global system scope for systems like Input and Audio
