@@ -6,12 +6,14 @@
 
 ## 🎯 What is The Remedy?
 
-The Remedy Toolkit solves Unity's biggest development pain points: **performance bottlenecks, tight coupling, and workflow complexity**. Built from the ground up with SOLID principles and performance optimization, it delivers the reliability and ease-of-use that Unity developers have been missing.
+The Remedy Toolkit is a **Unity framework** designed to replace Unity’s slow and complex solutions with a **performance-first, node-based scripting system**. Acting as a true **visual scripting alternative**, it eliminates performance bottlenecks, removes tight coupling, and simplifies workflows into a **single, scalable Unity architecture toolkit**.
+
+Built from the ground up with SOLID principles, the Remedy Toolkit provides developers with the reliability, performance, and ease-of-use that Unity projects of all sizes need.
 
 ### The Problem
 - **Unity Visual Scripting**: 15x slower performance overhead
 - **Existing Frameworks**: Tight coupling makes customization a nightmare  
-- **Workflow Chaos**: Many tools and frameworks as well as ScriptableObject archetectures require jumping between inspectors and managing hundreds of references
+- **Workflow Chaos**: Many tools and frameworks as well as ScriptableObject architectures require jumping between inspectors and managing hundreds of references
 - **Scale Issues**: While using traditional ScriptableEvent workflows the mental complexity between event connections grows exponentially for sending and recieving (20² = 400 mental variables to track)
 
 ### The Solution, The Remedy Toolkit + Schematics
@@ -71,7 +73,7 @@ The Remedy Toolkit solves Unity's biggest development pain points: **performance
 ### Your First Schematic in 60 Seconds
 1. **Create a Prefab** The system will ask if you want to create a Schematic, click Yes
 2. **Open Schematics Window** Opens automatically on first creation, then you can click the $ button where the prefab is displayed in the Object Hierarchy
-3. **Setup your Prefab** Use the Schematic IODock to set up your prefab's Children and Components in less time than with the standard unity Inspector 
+3. **Setup your Prefab** Set up prefab components faster than the Unity Inspector using the Schematic IODock 
 4. **Connect nodes** Drag-and-drop Events from the IODock to the Schematic Graph and wire them up to make your game object come to life
 5. **Hit Play** - Watch it come to life
 
@@ -175,7 +177,12 @@ Looking for a **Unity architecture specialist** who can:
 
 ## 🔮 Roadmap
 
-- [ ] **Multiplayer Integration** - Add NetworkEvents to ScriptableEvents so they can optionally be synced via multiplayer, and also incorporate multiplayer in feature components
+- [ ] **Schematic Singletons** - Global Schematic 
+- [ ] **Timeline Control** - Interact with the Timeline with Nodes and call ScriptableEvents or vice versa
+- [ ] **Enemy AI** - Communicate with the new Behavior tree package that Unity recently released for Enemy Behavior 
+- [ ] **Level Streaming** - Editor tooling to allow designers to create level chunks in scene and stream them into play
+- [ ] **Multiplayer Integration** - NetworkEvents for ScriptableEvents so they can optionally be synced via multiplayer, and also incorporate multiplayer in feature components
+- [ ] **Analytics Integration** - Analytics functionality to track player behavior using the Schematic Graph
 - [ ] **Asset Store Release** - Public availability
 - [ ] **Documentation Portal** - Comprehensive guides and tutorials
 
@@ -187,7 +194,6 @@ Looking for a **Unity architecture specialist** who can:
 - [**Architecture Overview**](docs/architecture.md) 
 - [**Performance Deep Dive**](docs/performance.md)
 - [**API Reference**](docs/api-reference.md)
-- [**Migration Guide**](docs/migration.md)
 
 ---
 
@@ -201,13 +207,17 @@ This toolkit represents years of solving Unity's core architectural problems. If
 4. **Push to the branch** (`git push origin feature/amazing-feature`)
 5. **Open a Pull Request**
 
-All contributors with Pull Requests that are accepted will recieve a free key use the Toolkit commercially.
+All contributors whose Pull Requests are accepted will **receive a free commercial license key** for the Toolkit upon release, as thanks for helping shape its future.
 
 ---
 
 ## 📄 License
 
-This project has no license, but all rights for the work go to Cairo Creative Studios as designated by the creator of the Toolkit, Chad Wolfe
+This project is **proprietary software**. All rights are reserved by Cairo Creative Studios, as designated by the creator of the Toolkit, Chad Wolfe.  
+
+- The source code may not be copied, modified, or redistributed without explicit permission.  
+- Commercial licensing inquiries can be made at **[TheChayed@Gmail.com]**.  
+- Contributors with accepted Pull Requests will be granted a free commercial license key.  
 
 ---
 
