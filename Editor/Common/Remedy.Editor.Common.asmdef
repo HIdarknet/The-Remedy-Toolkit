@@ -1,0 +1,24 @@
+{
+    "name": "Remedy.Editor.Common",
+    "rootNamespace": "",
+    "references": [
+        "GUID:9cef1c0784dad074282847b193c0d47b",
+        "GUID:d69878d2b0cee4845bf3190bea02fa48",
+        "GUID:9b261077c7a2ac34886513ec1345f8e0",
+        "GUID:3ae0f0d40cb1ecc438fa8b5be1e00178",
+        "GUID:2f7bdacacb9601c43a1fc52de7294d08",
+        "GUID:23f3c6063e13e4fd9addce3606ff4e42",
+        "GUID:ea715009a4efd4c6cbc85be3ae097dd3",
+        "GUID:21b0c8d1703a94250bfac916590cea4f",
+        "GUID:54cb1906aeb4e4264bc1d2aa3818a43f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

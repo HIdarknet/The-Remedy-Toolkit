@@ -1,0 +1,23 @@
+{
+    "name": "Remedy.Weapons",
+    "rootNamespace": "",
+    "references": [
+        "GUID:9cef1c0784dad074282847b193c0d47b",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:9b261077c7a2ac34886513ec1345f8e0",
+        "GUID:210a0f75c0591ff4da62d81f2a2ca2db",
+        "GUID:fdc14788217d5c148a3f4ea65233aa7c",
+        "GUID:37a5aaa1b8b57be43ba7564e447ab017",
+        "GUID:0a22d72520a82174ab746de6d8876564",
+        "GUID:6082862122ef11a49bf208ee4ec62519"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

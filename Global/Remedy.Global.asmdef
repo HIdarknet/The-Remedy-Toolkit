@@ -1,0 +1,30 @@
+{
+    "name": "Remedy.Global",
+    "rootNamespace": "",
+    "references": [
+        "GUID:9cef1c0784dad074282847b193c0d47b",
+        "GUID:1789b792daa5b784ca8057990853837e",
+        "GUID:278e6c310fdb601458868ec44b1cac4b",
+        "GUID:a37216197589a8244a7822b857f266d7",
+        "GUID:6c3b5c487fba73c4cab9f587c58ef7c6",
+        "GUID:09108787c999b5a45a60d0f97d2e6d14",
+        "GUID:d96e658538b001242b62ab7d6b71531a",
+        "GUID:2f7bdacacb9601c43a1fc52de7294d08",
+        "GUID:cc6cf03165cc2bf49af7f35b22551e4f",
+        "GUID:32e9366afccba9245ad2c9ea731828e5",
+        "GUID:b7bf01888d617424785d91f48d18129e",
+        "GUID:9b261077c7a2ac34886513ec1345f8e0",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:210a0f75c0591ff4da62d81f2a2ca2db",
+        "GUID:37a5aaa1b8b57be43ba7564e447ab017"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

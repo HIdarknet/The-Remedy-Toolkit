@@ -1,0 +1,22 @@
+{
+    "name": "Remedy.Core",
+    "rootNamespace": "",
+    "references": [
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:4307f53044263cf4b835bd812fc161a4",
+        "GUID:21b0c8d1703a94250bfac916590cea4f",
+        "GUID:ea715009a4efd4c6cbc85be3ae097dd3",
+        "GUID:f06555f75b070af458a003d92f9efb00",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:9b261077c7a2ac34886513ec1345f8e0"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
