@@ -33,7 +33,7 @@ Here are some projects and demos built using The Remedy Toolkit:
 
 | Game / Demo | Clip |
 |------------|------|
-| *Tails Adventure Armada Fangame* | ![Clip](https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdDY1YXZuZHR2YmFmOTk3MWJkZWZjODhjeGhpMDV0MW1tY2o0empkaCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/EWck3vB2ObLlX5e3SX/giphy.gif) |
+| *Tails Adventure Armada Fangame* | ![Clip](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExY2hucWU5eGZ6dGF0aWgyMWlvcGtkMWd4ZXN6cDBsNW1kdHpuOGp6eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/nq8mTu1N24CCXH2Z5z/giphy.gif) |
 
 > All clips are captured in real-time to showcase **performance, node-based workflows, and gameplay features** powered by Remedy Toolkit.
 
@@ -56,6 +56,7 @@ Here are some projects and demos built using The Remedy Toolkit:
 - **Multiplatform** runs blazing fast on all platforms
 
 ### 🔧 **Gameplay Features**
+![Clip](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHloaXFkb3duaWM0azA3MzZvY2dqZTl2NGRxNXBra3hrbnFxbzhjMSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/SAP1lRPy721vcJdOVD/giphy.gif)
 - **Character Controllers**: Hover, wall-slide, ledge-grab systems
 - **Weapon System**: Projectile and melee weapons for any object type
 - **Advanced Camera**: Flexible Cameras including a AAA-quality third-person camera (Mario Odyssey-style) and over the shoulder shooter camera 
