@@ -6,12 +6,14 @@
 
 ## 🎯 What is The Remedy?
 
-The Remedy Toolkit solves Unity's biggest development pain points: **performance bottlenecks, tight coupling, and workflow complexity**. Built from the ground up with SOLID principles and performance optimization, it delivers the reliability and ease-of-use that Unity developers have been missing.
+The Remedy Toolkit is a **Unity framework** designed to replace Unity’s slow and complex solutions with a **performance-first, node-based scripting system**. Acting as a true **visual scripting alternative**, it eliminates performance bottlenecks, removes tight coupling, and simplifies workflows into a **single, scalable Unity architecture toolkit**.
+
+Built from the ground up with SOLID principles, the Remedy Toolkit provides developers with the reliability, performance, and ease-of-use that Unity projects of all sizes need.
 
 ### The Problem
 - **Unity Visual Scripting**: 15x slower performance overhead
 - **Existing Frameworks**: Tight coupling makes customization a nightmare  
-- **Workflow Chaos**: Many tools and frameworks as well as ScriptableObject archetectures require jumping between inspectors and managing hundreds of references
+- **Workflow Chaos**: Many tools and frameworks as well as ScriptableObject architectures require jumping between inspectors and managing hundreds of references
 - **Scale Issues**: While using traditional ScriptableEvent workflows the mental complexity between event connections grows exponentially for sending and recieving (20² = 400 mental variables to track)
 
 ### The Solution, The Remedy Toolkit + Schematics
@@ -25,9 +27,22 @@ The Remedy Toolkit solves Unity's biggest development pain points: **performance
 
 ---
 
+## 🎮 Powered by Remedy Toolkit
+
+Here are some projects and demos built using The Remedy Toolkit:
+
+| Game / Demo | Clip |
+|------------|------|
+| *Tails Adventure Armada Fangame* | ![Clip](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExY2hucWU5eGZ6dGF0aWgyMWlvcGtkMWd4ZXN6cDBsNW1kdHpuOGp6eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/nq8mTu1N24CCXH2Z5z/giphy.gif) |
+
+> All clips are captured in real-time to showcase **performance, node-based workflows, and gameplay features** powered by Remedy Toolkit.
+
+---
+
 ## 🚀 Core Features
 
 ### 🎨 **Schematics Editor**
+![Clip](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcjFuOXNxZHQ3dGUybHFxOTlqbHA2aTU1eXAzcjNzeWc3eHg4ZHcydiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/GJL1EekvjLFr5P7mgl/giphy.gif)
 - **Visual node-based development** Unreal Blueprint-inspired interface
 - **IODock system** for drag-and-drop component wiring backed by automated ScriptableEvent creation and management
 - **Prefab-driven architecture** with global system scope for systems like Input and Audio
@@ -41,6 +56,7 @@ The Remedy Toolkit solves Unity's biggest development pain points: **performance
 - **Multiplatform** runs blazing fast on all platforms
 
 ### 🔧 **Gameplay Features**
+![Clip](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHloaXFkb3duaWM0azA3MzZvY2dqZTl2NGRxNXBra3hrbnFxbzhjMSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/SAP1lRPy721vcJdOVD/giphy.gif)
 - **Character Controllers**: Hover, wall-slide, ledge-grab systems
 - **Weapon System**: Projectile and melee weapons for any object type
 - **Advanced Camera**: Flexible Cameras including a AAA-quality third-person camera (Mario Odyssey-style) and over the shoulder shooter camera 
@@ -71,7 +87,7 @@ The Remedy Toolkit solves Unity's biggest development pain points: **performance
 ### Your First Schematic in 60 Seconds
 1. **Create a Prefab** The system will ask if you want to create a Schematic, click Yes
 2. **Open Schematics Window** Opens automatically on first creation, then you can click the $ button where the prefab is displayed in the Object Hierarchy
-3. **Setup your Prefab** Use the Schematic IODock to set up your prefab's Children and Components in less time than with the standard unity Inspector 
+3. **Setup your Prefab** Set up prefab components faster than the Unity Inspector using the Schematic IODock 
 4. **Connect nodes** Drag-and-drop Events from the IODock to the Schematic Graph and wire them up to make your game object come to life
 5. **Hit Play** - Watch it come to life
 
@@ -154,7 +170,7 @@ Looking for a **Unity architecture specialist** who can:
 
 ---
 
-## 📈 Why Choose Remedy?
+## 📈 Why Choose The Remedy?
 
 ### For Solo Developers
 - **Rapid prototyping** without technical debt
@@ -175,7 +191,12 @@ Looking for a **Unity architecture specialist** who can:
 
 ## 🔮 Roadmap
 
-- [ ] **Multiplayer Integration** - Add NetworkEvents to ScriptableEvents so they can optionally be synced via multiplayer, and also incorporate multiplayer in feature components
+- [ ] **Schematic Singletons** - Global Schematic 
+- [ ] **Timeline Control** - Interact with the Timeline with Nodes and call ScriptableEvents or vice versa
+- [ ] **Enemy AI** - Communicate with the new Behavior tree package that Unity recently released for Enemy Behavior 
+- [ ] **Level Streaming** - Editor tooling to allow designers to create level chunks in scene and stream them into play
+- [ ] **Multiplayer Integration** - NetworkEvents for ScriptableEvents so they can optionally be synced via multiplayer, and also incorporate multiplayer in feature components
+- [ ] **Analytics Integration** - Analytics functionality to track player behavior using the Schematic Graph
 - [ ] **Asset Store Release** - Public availability
 - [ ] **Documentation Portal** - Comprehensive guides and tutorials
 
@@ -187,7 +208,6 @@ Looking for a **Unity architecture specialist** who can:
 - [**Architecture Overview**](docs/architecture.md) 
 - [**Performance Deep Dive**](docs/performance.md)
 - [**API Reference**](docs/api-reference.md)
-- [**Migration Guide**](docs/migration.md)
 
 ---
 
@@ -201,13 +221,19 @@ This toolkit represents years of solving Unity's core architectural problems. If
 4. **Push to the branch** (`git push origin feature/amazing-feature`)
 5. **Open a Pull Request**
 
-All contributors with Pull Requests that are accepted will recieve a free key use the Toolkit commercially.
+All contributors whose Pull Requests are accepted will **receive a free commercial license key** for the Toolkit upon release, as thanks for helping shape its future.
 
 ---
 
 ## 📄 License
 
-This project has no license, but all rights for the work go to Cairo Creative Studios as designated by the creator of the Toolkit, Chad Wolfe
+This project is **proprietary software**. All rights are reserved by Cairo Creative Studios, as designated by the creator of the Toolkit, Chad Wolfe.  
+
+- The source code is provided for evaluation and contribution purposes only.  
+- You may not copy, modify, or redistribute this project outside of submitting contributions through Pull Requests.  
+- Commercial use requires a license. Inquiries can be made at **[TheChayed@Gmail.com]**.  
+- Contributors with accepted Pull Requests will be granted a free commercial license key.  
+- A commercial license key grants the right to **use the Remedy Toolkit in commercial projects**, but **does not grant redistribution or resale rights**.  
 
 ---
 
