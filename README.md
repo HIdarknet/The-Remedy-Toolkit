@@ -49,6 +49,7 @@ Here are some projects and demos built using The Remedy Toolkit:
 - **Auto-generated ScriptableObjects** - Zero manual asset management, meaning you simply add a component and it's Input and Output and Data are all neatly generated behind the scenes
 
 ### ⚡ **Performance-First Engine**
+![Clip](https://github.com/Cairo-Creative-Studios/The-Remedy-Toolkit/blob/main/media/character%20controller%20performance.gif)
 - **Union-based value passing** - CPU cache optimized data structures with 0 GC Alloc for almost all Unity relevant Types
 - **Zero reflection at runtime** - Pure ScriptableObject architecture
 - **Automatic object pooling** for Schematic-based objects
