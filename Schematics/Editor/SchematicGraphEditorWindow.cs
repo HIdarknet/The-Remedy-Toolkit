@@ -379,45 +379,6 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
         }
     }
 
-    /// <summary>
-    /// Called when the editor window is closing.
-    /// Ensures that any unsaved changes are persisted before the window closes.
-    /// </summary>
-/*    protected override void OnClose()
-    {
-        SaveGraph();
-    }*/
-
-    /// <summary>
-    /// Asynchronously saves the current graph state and all event references.
-    /// Updates the prefab and schematic scope with the current graph data and redraws the IO dock.
-    /// </summary>
-/*    internal async void SaveGraph()
-    {
-        await EventManager.SaveAllEventReferences(Prefab, SchematicScope, SchematicGraph);
-        RedrawIODock();
-        SchematicGraph.CacheNodesByType();
-        SchematicGraph.CachePortConnections();
-        SchematicGraph.ReconstructPortConnections();
-        Canvas.Reload();
-    }*/
-
-    /// <summary>
-    /// Handles keyboard input events for the editor window.
-    /// Currently supports Ctrl+S (or Cmd+S on Mac) for saving the graph.
-    /// </summary>
-    /// <param name="evt">The keyboard event data</param>
-/*    private void OnKeyDown(KeyDownEvent evt)
-    {
-        bool ctrlOrCmd = (Application.platform == RuntimePlatform.OSXEditor) ? evt.commandKey : evt.ctrlKey;
-
-        if (ctrlOrCmd && evt.keyCode == KeyCode.S)
-        {
-            evt.StopImmediatePropagation();
-            SaveGraph();
-        }
-    }*/
-
 
     /// <summary>
     /// Handles drag-and-drop update events over the canvas.

@@ -25,6 +25,7 @@ public class SchematicGenerationPrefabPostProcessor : AssetPostprocessor
             if (!assetPath.EndsWith(".prefab")) continue;
 
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+            Debug.Log(assetPath);
             if (prefab == null) continue;
 
             var created = SchematicGenerator.CreateSchematicForPrefab(prefab);

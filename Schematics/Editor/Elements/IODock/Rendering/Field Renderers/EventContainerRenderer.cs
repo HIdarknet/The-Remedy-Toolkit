@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using UnityEngine.UIElements;
 using UnityEngine;
 using UnityEditor;
@@ -10,22 +9,64 @@ using UnityEditor;
 [FieldRendererTarget(typeof(EventContainerRendererAttribute))]
 public class EventContainerRenderer : FieldRenderer
 {
+    private static SerializableDictionary<(Type type, string fieldName), ScriptableEventReference> _cachedReferences = new();
+    private static List<EventContainerRenderer> _eventLinkWaitPool = new(); // Events waiting for the rest of the Component to finish displaying before attempting to draw
     private EventContainerRendererAttribute _evAttr;
+    private EventLinkAttribute _linkAttr;
 
     public EventContainerRenderer(SchematicGraphEditorWindow window, UnityEngine.Object obj, object parent, object target, MemberWrapper fieldInfo, CustomFieldRendererAttribute attr, string path, List<Action> onModified) : base(window, obj, parent, target, fieldInfo, attr, path, onModified)
     {
         _evAttr = (EventContainerRendererAttribute)attr;
-        if(_evAttr == null)
+        _linkAttr = fieldInfo?.GetCustomAttributes()?.OfType<EventLinkAttribute>().FirstOrDefault();
+
+        if (_evAttr == null)
         {
             var defType = _field.MemberType.GetGenericArguments().FirstOrDefault();
 
-            if(defType != null)
-                _evAttr = new(ScriptableEventBase.GetEventTypeForArgumentType(defType), fieldInfo.Name, true, false);
+            if (defType != null)
+                _evAttr = new(ScriptableEventBase.GetEventTypeForArgumentType(defType), _field.Name, true, false);
             else
-                _evAttr = new(typeof(ScriptableEvent), fieldInfo.Name, true, true);
+                _evAttr = new(typeof(ScriptableEvent), _field.Name, true, true);
         }
 
-        var ser = _window.EventManager.GetOrCreateEventReference(_object, _path, _field, _evAttr.DefaultType, _evAttr.DefaultName);
+        if (_linkAttr != null)
+            DrawEventContainer();
+        else
+            _eventLinkWaitPool.Add(this);
+    }
+
+    /// <summary>
+    /// Draws the Events that were waiting for the rest of the Component to render before they themselves rendered.
+    /// </summary>
+    public static void DrawDelayedEvents()
+    {
+        foreach(var eventContainer in _eventLinkWaitPool)
+        {
+            eventContainer.DrawEventContainer();
+        }
+        _eventLinkWaitPool.Clear();
+    }
+
+    protected void DrawEventContainer()
+    {
+        ScriptableEventReference ser = null;
+        bool loadedFromOther = false;
+        
+        if(_linkAttr != null)
+        {
+            if(_cachedReferences.TryGetValue((_linkAttr.Type, _linkAttr.FieldName), out ser))
+            {
+                Debug.Log("Loaded");
+                loadedFromOther = true;
+            }
+        }
+
+        if(!loadedFromOther)
+        {
+            ser = _window.EventManager.GetOrCreateEventReference(_object, _path, _field, _evAttr.DefaultType, _evAttr.DefaultName);
+
+            _cachedReferences.Add((_object.GetType(), _field.Name), ser);
+        }
 
         var row = new VisualElement
         {
@@ -178,7 +219,7 @@ public class EventContainerRenderer : FieldRenderer
             });
         });
         Texture2D myTexture;
-        if(_field.MemberType.Name.Contains("Output"))
+        if (_field.MemberType.Name.Contains("Output"))
             myTexture = Resources.Load<Texture2D>("Icons/Output");
         else
             myTexture = Resources.Load<Texture2D>("Icons/Input");

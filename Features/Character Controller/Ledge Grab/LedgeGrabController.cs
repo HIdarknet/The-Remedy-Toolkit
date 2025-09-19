@@ -246,14 +246,14 @@ namespace Remedy.CharacterControllers.LedgeGrab
         {
             if (CurrentWallSide == WallSide.Right)
             {
-                if (RaycastUtility.SphereCast(_transform.position + new Vector3(0, Properties.LedgeOffset, 0) - _jumpDir, Vector3.down, Properties.LedgeCheckRadius, Properties.LedgeOffset, _raycastContext.Properties.CollisionMask).TryGetClosestHit(out RaycastHit ledgeHit))
+                if (RaycastUtility.SphereCast(_transform, _transform.position + new Vector3(0, Properties.LedgeOffset, 0) - _jumpDir, Vector3.down, Properties.LedgeCheckRadius, Properties.LedgeOffset, _raycastContext.Properties.CollisionMask).TryGetClosestHit(out RaycastHit ledgeHit))
                 {
                     LedgePosition = new Vector3(wallContactPoint.x, ledgeHit.point.y, wallContactPoint.z);
                 }
             }
             else
             {
-                if (RaycastUtility.SphereCast(_transform.position + new Vector3(0, Properties.LedgeOffset, 0) + _jumpDir, Vector3.down, Properties.LedgeCheckRadius, Properties.LedgeOffset, _raycastContext.Properties.CollisionMask).TryGetClosestHit(out RaycastHit ledgeHit))
+                if (RaycastUtility.SphereCast(_transform, _transform.position + new Vector3(0, Properties.LedgeOffset, 0) + _jumpDir, Vector3.down, Properties.LedgeCheckRadius, Properties.LedgeOffset, _raycastContext.Properties.CollisionMask).TryGetClosestHit(out RaycastHit ledgeHit))
                 {
                     LedgePosition = new Vector3(wallContactPoint.x, ledgeHit.point.y, wallContactPoint.z);
                 }

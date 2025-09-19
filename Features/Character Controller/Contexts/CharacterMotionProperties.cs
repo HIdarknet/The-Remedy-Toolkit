@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class CharacterMotionProperties : ScriptableObjectWithID<CharacterMotionProperties>
 {
+    public PhysicsMaterial PhysicsMaterial;
+
     [Tooltip("If the Horizontal Velocity is within this distance away from the desired moving velocity, it will be snapped to the desired moving velocity. (reduces motion innacuracy and idle drifting).")]
     public float MovementSnapThreshold = 0.1f;
 

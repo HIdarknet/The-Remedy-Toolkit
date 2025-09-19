@@ -3,57 +3,21 @@ using Remedy.Framework;
 using UnityEngine;
 
 [SchematicComponent("Movement/3D/Default Character Controller")]
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(CharacterMotionContext))]
 [RequireComponent(typeof(CharacterRaycastContext))]
 public class PhysicsBasedCharacterController : MonoBehaviour
 {
+    [EventLink(typeof(CharacterMotionContext), nameof(CharacterMotionContext.MoveInput))]
     public ScriptableEventVector2.Input MoveInput => MotionContext.MoveInput;
+    [EventLink(typeof(CharacterMotionContext), nameof(CharacterMotionContext.JumpInput))]
     public ScriptableEventBoolean.Input JumpInput => MotionContext.JumpInput;
     public ScriptableEventVector3.Input MoveToPosition = new();
-    
-    //[SepTitle("Physics")]
-    [Header("Movement")]
-    public float MoveSpeed = 5f;
-    public float Acceleration = 10f;
-    public float Deceleration = 10f;
 
-    [Header("Jump and Fall")]
-    [Tooltip("The speed at which the character moves toward the desired Jump Height")]
-    public float JumpSpeed = 10f;
-    [Tooltip("The max height of the jump")]
-    public float JumpHeight = 2f;
-    public float FallSpeed = 2f;
-    [Tooltip("The delay between transitioning from Grounded to Jumping states after the Character has landed")]
-    public float JumpResetDelay = 1f;
-    [Tooltip("The amount of time after the Jump Button has been initially pressed to consider whether a jump should occur")]
-    public float JumpBuffer = 1f;
-    [Tooltip("The amount of time to remain at the peak of a Jump (or push)")]
-    public float HangTimeDuration = 1f;
-    [Tooltip("Rate of change toward the desired Hang Time Height during Hang Time")]
-    public float HangTimeDamper = 10f;
+    [SchematicProperties]
+    public CharacterControllerProperties Properties;
 
-    [Header("Ride Height")]
-    public float RideHeight = 1.5f;
-    [Tooltip("Larger numbers can make the character jump innapropriately, but also make it stick to the desired height easier.")]
-    public float MaxHoverForce = 0.5f;
-    public float RideSpringStrength = 200f;
-    public float VerticalSpringDamper = 20f;
-
-    [Header("Collisions")]
-    [Tooltip("The amount of time to fully recover from a Collision's Push")]
-    public float CollisionRecoveryDuration = 1f;
-    [Tooltip("The max amount of influence over moving velocity a Collision's push can have")]
-    //[MinMaxSlider(0.0f, 1f)]
-    public float CollisionInfluence = 0.25f;
-    [Tooltip("Required speed of the moving object before the collision is considered a 'push'")]
-    public float CollisionVelocityThreshold = 3f;
-
-    [Header("Aesthetic")]
-    public float TiltAmount = 10f;
-    public float TiltReboundSpeed = 1f;
-
-    public CharacterMotionContext MotionContext => _motionContext ??= gameObject.GetCachedComponent<CharacterMotionContext>();
-    public CharacterRaycastContext RaycastContext => _raycastContext ??= gameObject.GetCachedComponent<CharacterRaycastContext>();
+    public CharacterMotionContext MotionContext => _motionContext ??= gameObject.GetComponent<CharacterMotionContext>();
+    public CharacterRaycastContext RaycastContext => _raycastContext ??= gameObject.GetComponent<CharacterRaycastContext>();
 
     // Cached
     private bool _cached = false;
@@ -78,10 +42,11 @@ public class PhysicsBasedCharacterController : MonoBehaviour
 
     private float _tempHangTimeDuration = -1; // > 0 = use this instead of default Hang Time
     private float _currentHangTime = 0f;
-    private bool _physicsStep = false;
     private float _dt;
     private float _hoverHeight;
     private float _jumpStartGroundHeight;
+    private float _groundY = 0;
+    private bool _hadJumped = false;
 
     private void OnEnable()
     {
@@ -93,6 +58,8 @@ public class PhysicsBasedCharacterController : MonoBehaviour
             _cached = true;
         }
 
+        _currentHangTime = Properties.HangTimeDuration;
+        _jumpBufferTime = Properties.JumpBuffer;
 
         MoveInput?.Subscribe(this, (Vector2 value) =>
         {
@@ -118,42 +85,21 @@ public class PhysicsBasedCharacterController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //Vector3 origin = _transform.position;
-
         _dt = Time.fixedDeltaTime;
-
-        _physicsStep = !_physicsStep;
-
-        if(_physicsStep)
-        {
-            HandleGroundRide();
-            HandleHorizontalMovement();
-            HandleJump();
-        }
-        else
-        {
-/*            _raycastContext.PerformWallCast(_moveDirection);
-
-            if (_raycastContext.WallCastResult.TryGetClosestHit(out var closestWallHit))
-            {
-                _wallNormal = closestWallHit.normal;
-                _wallProjectedVelocity = Vector3.ProjectOnPlane(_motionContext.HorizontalVelocity, _wallNormal);
-            }
-
-            _motionContext.ApplyHorizontalForce(_wallProjectedVelocity, true);*/
-        }
+        HandleGroundRide();
+        HandleHorizontalMovement();
+        HandleJump();
     }
 
     private void HandleGroundRide()
     {
         if (_raycastContext.IsGrounded && !_isJumping)
         {
-            if (_raycastContext.GroundCastResult.TryGetClosestHit(out var closestGroundHit))
-            {
-                SpringToY(closestGroundHit.point.y, RideHeight);
-                _prevGrounded = true;
-                _reachedJumpArc = false;
-            }
+            _hadJumped = false;
+            _groundY = _raycastContext.GroundPosition.y;
+            _prevGrounded = true;
+            _reachedJumpArc = false;
+            SpringToY(_groundY, Properties.RideHeight);
         }
         else
         {
@@ -164,13 +110,13 @@ public class PhysicsBasedCharacterController : MonoBehaviour
 
     private void HandleHorizontalMovement()
     {
-        float desiredSpeed = MoveSpeed;
-        float desiredRateOfChange = Acceleration;
+        float desiredSpeed = Properties.MoveSpeed;
+        float desiredRateOfChange = Properties.Acceleration;
 
         if (Mathf.Abs(_moveInput.x) + Mathf.Abs(_moveInput.z) < 0.1f)
         {
             desiredSpeed = 0;
-            desiredRateOfChange = Deceleration;
+            desiredRateOfChange = Properties.Deceleration;
         }
 
         _moveDirection = _moveInput;
@@ -198,7 +144,7 @@ public class PhysicsBasedCharacterController : MonoBehaviour
 
     private void HandleJump()
     {
-        float hangTimeDuration = _tempHangTimeDuration > 0 ? _tempHangTimeDuration : HangTimeDuration;
+        float hangTimeDuration = _tempHangTimeDuration > 0 ? _tempHangTimeDuration : Properties.HangTimeDuration;
 
         if (_moveInput.y == 0)
         {
@@ -207,7 +153,7 @@ public class PhysicsBasedCharacterController : MonoBehaviour
 
             if(_isJumping)
             {
-                _jumpBufferTime = JumpBuffer;
+                _jumpBufferTime = Properties.JumpBuffer;
                 _isJumping = false;
             }
         }
@@ -216,20 +162,19 @@ public class PhysicsBasedCharacterController : MonoBehaviour
         {
             _jumpResetTime += _dt;
 
-            if (_jumpResetTime > JumpResetDelay && _jumpBufferTime < JumpBuffer)
+            if (_jumpResetTime > Properties.JumpResetDelay && _jumpBufferTime < Properties.JumpBuffer)
             {
-                if (_raycastContext.GroundCastResult.TryGetClosestHit(out var closestGroundHit))
-                {
-                    _isJumping = true;
-                    _prevGrounded = false;
-                    _jumpResetTime = 0f;
-                    _jumpArcY = closestGroundHit.point.y + JumpHeight;
+                _isJumping = true;
+                _prevGrounded = false;
+                _jumpResetTime = 0f;
+                _jumpArcY = _raycastContext.GroundPosition.y + Properties.JumpHeight;
 
-                    _motionContext.ApplyVerticalForce(JumpSpeed, true);
+                _motionContext.ApplyVerticalForce(Properties.JumpSpeed, true);
 
-                    _jumpStartGroundHeight = closestGroundHit.point.y;
-                    _reachedJumpArc = false;
-                }
+                _jumpStartGroundHeight = _raycastContext.GroundPosition.y;
+                _reachedJumpArc = false;
+
+                _hadJumped = true;
             }
         }
         else if(_isJumping)
@@ -238,7 +183,7 @@ public class PhysicsBasedCharacterController : MonoBehaviour
 
             if (predictedPos.y < _jumpArcY)
             {
-                _motionContext.ApplyVerticalForce(JumpSpeed, true);
+                _motionContext.ApplyVerticalForce(Properties.JumpSpeed, true);
             }
             else
             {
@@ -247,10 +192,10 @@ public class PhysicsBasedCharacterController : MonoBehaviour
                 _reachedJumpArc = true;
             }
         }
-        else if (_currentHangTime < hangTimeDuration)
+        else if (_currentHangTime < hangTimeDuration && _hadJumped)
         {
             if(_reachedJumpArc)
-                SpringToY(_jumpStartGroundHeight, JumpHeight);
+                SpringToY(_jumpStartGroundHeight, Properties.JumpHeight);
             else
             {
                 if (_hoverHeight < _transform.position.y)
@@ -261,7 +206,7 @@ public class PhysicsBasedCharacterController : MonoBehaviour
         }
         else if(!_prevGrounded)
         {
-            _motionContext.ApplyVerticalForce(-FallSpeed);
+            _motionContext.ApplyVerticalForce(-Properties.FallSpeed);
         }
 
         _jumpBufferTime += _dt;
@@ -273,9 +218,9 @@ public class PhysicsBasedCharacterController : MonoBehaviour
         float distance = Mathf.Abs(Mathf.Abs(groundYPosition) - Mathf.Abs(_transform.position.y));
         float heightError = distance - targetYPosition;
         float velAlongNormal = Vector3.Dot(Vector3.down, _motionContext.Velocity);
-        float differenceForce = (heightError * RideSpringStrength) - (velAlongNormal * VerticalSpringDamper);
+        float differenceForce = (heightError * Properties.RideSpringStrength) - (velAlongNormal * Properties.VerticalSpringDamper);
 
-        float finalForce = Mathf.Clamp((Physics.gravity.y + differenceForce) * _dt, -MaxHoverForce, MaxHoverForce);
+        float finalForce = Mathf.Clamp((differenceForce) * _dt, -Properties.MaxHoverForce, Properties.MaxHoverForce);
 
         _motionContext.ApplyVerticalForce(-finalForce);
     }
@@ -286,7 +231,7 @@ public class PhysicsBasedCharacterController : MonoBehaviour
         {
             if (Vector3.Dot(contact.normal, Vector3.down) > 0.5f)
             {
-                _currentHangTime = HangTimeDuration; 
+                _currentHangTime = Properties.HangTimeDuration; 
                 break;
             }
         }

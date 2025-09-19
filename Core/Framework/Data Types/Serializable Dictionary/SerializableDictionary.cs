@@ -51,7 +51,8 @@ namespace Remedy.Framework
 
         public void Add(TKey key, TValue value)
         {
-            dictionary.Add(key, value);
+            if (!dictionary.ContainsKey(key))
+                dictionary.Add(key, value);
         }
 
         public bool ContainsKey(TKey key)

@@ -72,9 +72,9 @@ namespace Remedy.Schematics.Utils
         public static implicit operator Union(Quaternion value) => new(value);
         public static implicit operator Union(string value) => new(value);
         public static implicit operator Union(LayerMask value) => new(value);
-        public static implicit operator Union(GameObject value) => value;
-        public static implicit operator Union(Component value) => value;
-        public static implicit operator Union(PhysicsMaterial value) => value;
+        public static implicit operator Union(GameObject value) => new(value);
+        public static implicit operator Union(Component value) => new(value);
+        public static implicit operator Union(PhysicsMaterial value) => new(value);
         public static implicit operator Union(List<Union> value) => new(value);
         public static implicit operator Union(Scene scene) => new(scene);
 

@@ -1,7 +1,8 @@
 using Remedy.Framework;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(SphereCollider))]
 [RequireComponent(typeof(CharacterRaycastContext))]
 public class CharacterMotionContext : MonoBehaviour
 {
@@ -19,10 +20,13 @@ public class CharacterMotionContext : MonoBehaviour
     public Vector3 HorizontalVelocity => _horizontalVelocity;
     public bool JumpPooled => _jumpPooled;
 
+    [SerializeField]
+    [HideInInspector]
     private bool _cached;
     private Transform _transform;
     private Rigidbody _rb;
     private CharacterRaycastContext _raycastContext;
+    private SphereCollider _collider;
 
     private Vector3 _velocity;
     private Vector3 _horizontalVelocity;
@@ -34,19 +38,10 @@ public class CharacterMotionContext : MonoBehaviour
     private Vector3 _vec3Zero = new Vector3(0, 0, 0);
     private bool _jumpPooled = false;
 
+    private bool _physicsStep = false;
+
     private void OnEnable()
     {
-        if (!_cached)
-        {
-            _transform = gameObject.GetCachedComponent<Transform>();
-            _rb = gameObject.GetCachedComponent<Rigidbody>();
-            _raycastContext = gameObject.GetCachedComponent<CharacterRaycastContext>();
-
-            _rb.constraints = RigidbodyConstraints.FreezeRotation;
-
-            _cached = true;
-        }
-
         CameraTransform = CameraSubsystem.Camera?.transform;
 
         if (CameraTransform == null && Camera.main != null)
@@ -57,66 +52,72 @@ public class CharacterMotionContext : MonoBehaviour
 
         if (CameraTransform == null)
             Debug.LogError("MotionContext: No camera found for motions to reference!");
+
     }
 
     private void FixedUpdate()
     {
-        _dt = Time.fixedDeltaTime;
+        _physicsStep = !_physicsStep;
 
-        // reset velocity
-        var rbVelocity = _rb.linearVelocity;
 
-        _horizontalVelocity.x = rbVelocity.x;
-        _horizontalVelocity.z = rbVelocity.z;
-        _velocity = rbVelocity;
-
-        _raycastContext.PerformGroundCast();
-
-        // apply forces
-        for (int i = 0; i < _forcesCount; i++)
+        if(_physicsStep)
         {
-            _velocity += _forces[i];
-        }
+            _raycastContext.PerformGroundCast();
 
-        // rest
-        bool isResting = false;
-        if (_horizontalVelocity.sqrMagnitude < Properties.MovementSnapThreshold)
-        {
-            _horizontalVelocity = _vec3Zero;
-
-            if (Mathf.Abs(_velocity.y) < Properties.MovementSnapThreshold)
+            // apply forces
+            for (int i = 0; i < _forcesCount; i++)
             {
-                _rb.Sleep();
+                _velocity += _forces[i];
+            }
+
+            _horizontalVelocity.x = _velocity.x;
+            _horizontalVelocity.z = _velocity.z;
+
+            // rest
+            bool isResting = false;
+
+            if (_horizontalVelocity.sqrMagnitude + Mathf.Pow(Mathf.Abs(_velocity.y) * 10, 2) < Properties.MovementSnapThreshold) // *gringe for the magic numbers*
+            {
                 isResting = true;
+                _rb.Sleep();
             }
             else
+            {
+                _horizontalMovementDirection = _horizontalVelocity.normalized;
+            }
+
+            // apply velocity
+            if (!isResting)
+            {
                 _rb.WakeUp();
+
+                HandleWallSlidingMovement();
+
+                if (_overrideVelocity == _vec3Zero)
+                    _rb.linearVelocity = _velocity;
+                else
+                {
+                    _rb.linearVelocity = _overrideVelocity;
+
+                    _overrideVelocity = _vec3Zero;
+                }
+
+                OnMoveOnGround?.Invoke(_horizontalVelocity);
+            }
         }
         else
         {
-            _rb.WakeUp();
-            _horizontalMovementDirection = _horizontalVelocity.normalized;
+            // reset velocity
+            var rbVelocity = _rb.linearVelocity;
+
+            _horizontalVelocity.x = rbVelocity.x;
+            _horizontalVelocity.z = rbVelocity.z;
+            _velocity = rbVelocity;
+
+            // reset forces
+            _forcesCount = 0;
         }
 
-        // apply velocity
-        if (true)
-        {
-            HandleWallSlidingMovement();
-
-            if (_overrideVelocity == _vec3Zero)
-                _rb.linearVelocity = _velocity;
-            else
-            {
-                _rb.linearVelocity = _overrideVelocity;
-
-                _overrideVelocity = _vec3Zero;
-            }
-
-            OnMoveOnGround?.Invoke(_horizontalVelocity);
-        }
-
-        // reset forces
-        _forcesCount = 0;
     }
 
     /// <summary>
@@ -209,6 +210,24 @@ public class CharacterMotionContext : MonoBehaviour
         return CameraTransform.TransformDirection(inputDirection);
     }
 
+    private void EnsureReferenceCache()
+    {
+        if (!_cached)
+        {
+            _dt = Time.fixedDeltaTime;
+            _transform = gameObject.GetCachedComponent<Transform>();
+            _rb = gameObject.GetCachedComponent<Rigidbody>();
+            _raycastContext = gameObject.GetCachedComponent<CharacterRaycastContext>();
+            _collider = gameObject.GetCachedComponent<SphereCollider>();
+            _collider.sharedMaterial = Properties.PhysicsMaterial;
+
+            _rb.constraints = RigidbodyConstraints.FreezeRotation;
+            _rb.useGravity = false;
+
+            _cached = true;
+        }
+    }
+
     private void HandleWallSlidingMovement()
     {
         _raycastContext.PerformWallCast(_horizontalMovementDirection);
@@ -220,5 +239,22 @@ public class CharacterMotionContext : MonoBehaviour
             _wallProjectedVelocity = Vector3.ProjectOnPlane(_horizontalVelocity, _wallNormal);
             ApplyHorizontalForce(_wallProjectedVelocity, true);
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        EnsureReferenceCache();
+
+        Gizmos.color = new Color(0f, 0.3f, 1f, 0.75f); 
+        Gizmos.DrawSphere(_transform.position + _collider.center, _collider.radius);
+
+        for (int i = 0; i < _forcesCount; i++)
+        {
+            if (_forces[i] != Vector3.zero)
+                CustomGizmos.DrawArrow(_transform.position, _forces[i], _forces[i].magnitude * 2, new Color(1f, 1f, 0f, 0.3f));
+        }
+
+        if (_rb.linearVelocity != Vector3.zero)
+            CustomGizmos.DrawArrow(_transform.position, _rb.linearVelocity * 0.5f, _rb.linearVelocity.magnitude, new Color(0, 1f, 0, 0.5f));
     }
 }

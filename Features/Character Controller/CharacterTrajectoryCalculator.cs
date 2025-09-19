@@ -46,7 +46,7 @@ namespace Remedy.CharacterControllers
 
             // Simulation parameters from controller
 
-            Vector3 baseGravity = (Physics.gravity * mass * 2f) + (Physics.gravity * mass * ((Instance.controller.FallSpeed + 1f))) ;
+            Vector3 baseGravity = (Physics.gravity * mass * 2f) + (Physics.gravity * mass * ((Instance.controller.Properties.FallSpeed + 1f))) ;
             Vector3 gravity = baseGravity;
             LayerMask terrainLayer = Instance._raycastContext.Properties.CollisionMask;
 
@@ -90,13 +90,13 @@ namespace Remedy.CharacterControllers
 
                 if (velocity.y <= 0)
                 {
-                    if (simulatedHangTime > Instance.controller.HangTimeDuration || !includeHangtime)
+                    if (simulatedHangTime > Instance.controller.Properties.HangTimeDuration || !includeHangtime)
                     {
                         // If we're very close to ground, we might be landing
-                        if (hitGround && groundHit.distance <= Instance.controller.RideHeight * 1.3f)
+                        if (hitGround && groundHit.distance <= Instance.controller.Properties.RideHeight * 1.3f)
                         {
                             // Character has landed, trajectory ends here
-                            trajectoryPoints.Add(groundHit.point + Vector3.up * Instance.controller.RideHeight);
+                            trajectoryPoints.Add(groundHit.point + Vector3.up * Instance.controller.Properties.RideHeight);
                             break;
                         }
 

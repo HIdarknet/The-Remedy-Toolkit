@@ -45,19 +45,7 @@ public class RemedyInput : SingletonData<RemedyInput>
     //[Dropdown("GetInputMaps")]
     private InputActionMap _currentActionMap;
     private Dictionary<InputAction, List<InputActionEvent>> _actionsToUpdate = new();
-/*
-    public DropdownList<InputActionMap> GetInputMaps()
-    {
-        var list = new DropdownList<InputActionMap>();
 
-        foreach(var map in InputMaps)
-        {
-            list.Add(map.Name, map);
-        }
-        if (list.Count() == 0) list.Add("No Maps", null);
-
-        return list;
-    }*/
 
     public void InitializeInput()
     {

@@ -22,23 +22,9 @@ namespace Remedy.Framework
             public int ClosestHitIndex; // -1 if no valid hit
             public bool HasHit;
 
-            /// <summary>Returns the hit at index i.</summary>
-            public RaycastHit GetHit(int i)
-            {
-                if (i < 0 || i >= HitCount) throw new IndexOutOfRangeException();
-                return s_ScratchBuffer[i];
-            }
-
-            /// <summary>Gets the closest hit directly (throws if none).</summary>
-            public RaycastHit GetClosestHit()
-            {
-                if (!HasHit) return default;
-                return s_ScratchBuffer[ClosestHitIndex];
-            }
-
             public bool TryGetClosestHit(out RaycastHit hit)
             {
-                if (!HasHit) { hit = default; return false; }
+                if (!HasHit || ClosestHitIndex > HitCount) { hit = default; return false; }
                 hit = s_ScratchBuffer[ClosestHitIndex];
                 return true;
             }
@@ -71,6 +57,7 @@ namespace Remedy.Framework
         /// Perform a sphere cast with angle & distance filtering.
         /// </summary>
         public static RaycastResult SphereCast(
+            Transform source,
             Vector3 origin,
             Vector3 direction,
             float radius,
@@ -105,10 +92,10 @@ namespace Remedy.Framework
             {
                 var hit = s_ScratchBuffer[i];
 
-                if (hit.transform == null) continue;
+                if (hit.transform == null || hit.transform == source) continue;
                 if (hit.distance > validDistance) continue;
 
-                float dot = Vector3.Dot(hit.normal, -direction);
+                float dot = Vector3.Dot(hit.normal, direction);
                 if (minAngleDeg > 0 && dot < minDot) continue;
                 if (maxAngleDeg > 0 && dot > maxDot) continue;
 

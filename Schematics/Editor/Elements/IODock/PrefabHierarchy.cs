@@ -274,6 +274,8 @@ public class PrefabHierarchy : VisualElement
                         else
                         {
                             var (draw, dock) = IODockRegistry.GetComponentRenderer(type).Render(schematicWindow, component, prefab.transform);
+                            EventContainerRenderer.DrawDelayedEvents();
+
                             var propertiesField = type.GetFields().Where(field => typeof(ScriptableObject).IsAssignableFrom(field.FieldType) && field.GetCustomAttributes()
                                                                                                             .Any(attr => attr.GetType() == typeof(SchematicPropertiesAttribute))).FirstOrDefault();
 
