@@ -1,4 +1,5 @@
 using Remedy.Framework;
+using Remedy.Schematics;
 using SchematicAssets;
 using System;
 using System.Collections.Generic;
@@ -71,7 +72,7 @@ public class PrefabHierarchy : VisualElement
             rootFoldout.Clear();
 
             // Group components by their GameObject (Transform)
-            foreach (var component in components)
+            foreach (var component in components.Where(comp => comp.GetType() != typeof(SchematicInstanceController)))
             {
                 bool isSelected = Selection.activeGameObject == component.gameObject;
 

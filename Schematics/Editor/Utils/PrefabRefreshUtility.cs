@@ -32,10 +32,10 @@ public static class PrefabRefreshUtility
         AssetDatabase.Refresh();
 
         var currentStage = PrefabStageUtility.GetCurrentPrefabStage();
-        if (currentStage != null && currentStage.prefabAssetPath == path)
+        if (currentStage != null && currentStage.assetPath == path)
         {
             // Store path so we can reopen
-            string assetPath = currentStage.prefabAssetPath;
+            string assetPath = currentStage.assetPath;
 
             // Close the stage
             EditorSceneManager.CloseScene(currentStage.scene, true);

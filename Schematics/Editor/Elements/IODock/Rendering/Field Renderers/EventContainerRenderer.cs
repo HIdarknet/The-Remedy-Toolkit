@@ -56,7 +56,6 @@ public class EventContainerRenderer : FieldRenderer
         {
             if(_cachedReferences.TryGetValue((_linkAttr.Type, _linkAttr.FieldName), out ser))
             {
-                Debug.Log("Loaded");
                 loadedFromOther = true;
             }
         }

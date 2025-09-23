@@ -232,7 +232,6 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
         if (SchematicScope != null)
         {
             var path = AssetDatabase.GetAssetPath(SchematicScope);
-            // Schematic = AssetDatabase.LoadAssetAtPath<SchematicScope>(path);
             SchematicGUID = AssetDatabase.AssetPathToGUID(path);
             EventManager.WorkingSet.Clear();
             RedrawIODock();
@@ -297,8 +296,20 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
 
         SchematicEditorData.Instance.ScriptableEventReferenceDebug = EventManager.WorkingSet;
 
-        Application.focusChanged += (bool val) => Canvas.Reload();
+        Application.focusChanged += Reload;
+        EditorApplication.projectChanged += Canvas.Reload;
+        AssemblyReloadEvents.afterAssemblyReload += Canvas.Reload;
+    }
 
+    private void OnDisable()
+    {
+        Application.focusChanged -= Reload;
+        EditorApplication.projectChanged -= Canvas.Reload;
+        AssemblyReloadEvents.afterAssemblyReload -= Canvas.Reload;
+    }
+
+    private void Reload(bool val = false)
+    {
         Canvas.Reload();
     }
 

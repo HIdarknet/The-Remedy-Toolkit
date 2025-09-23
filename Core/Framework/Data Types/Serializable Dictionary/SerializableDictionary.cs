@@ -149,10 +149,8 @@ namespace Remedy.Framework
                         {
                             dictionary.Add(items[i].key, items[i].value);
                         }
-                        catch(Exception e)
-                        {
-                            Debug.LogError(e);
-                        }
+                        catch
+                        { }
                     }
                     else
                     {

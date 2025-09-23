@@ -43,15 +43,10 @@ public class ScriptableVariableListRenderer : FieldRenderer
                 borderLeftWidth = 1,
                 borderTopWidth = 1,
 
-                borderBottomRightRadius = 15,
-                borderBottomLeftRadius = 15,
-                borderTopRightRadius = 15,
-                borderTopLeftRadius = 15,
-
-                borderBottomColor = Color.white,
-                borderRightColor = Color.white,
-                borderLeftColor = Color.white,
-                borderTopColor = Color.white
+                borderBottomColor = Color.gray3,
+                borderRightColor = Color.gray3,
+                borderLeftColor = Color.gray3,
+                borderTopColor = Color.gray3
             }
         };
 
@@ -65,13 +60,19 @@ public class ScriptableVariableListRenderer : FieldRenderer
 
     private VisualElement CreateRow(ScriptableVariable variable)
     {
-        var row = new VisualElement();
-        row.style.flexDirection = FlexDirection.Row;
-        row.style.marginBottom = 4;
+        var row = new VisualElement()
+        {
+            style =
+            {
+                flexDirection = FlexDirection.Row,
+                width = Length.Percent(100)
+            }
+        };
 
         // Name field
         var nameField = new TextField { value = variable.name };
         nameField.style.flexGrow = 1;
+
         nameField.RegisterValueChangedCallback(evt =>
         {
             variable.name = evt.newValue;
@@ -89,11 +90,6 @@ public class ScriptableVariableListRenderer : FieldRenderer
             RefreshValueField(row, variable);
         });
         row.Add(typeField);
-
-        // Value field
-        var valueField = CreateValueField(variable);
-        valueField.style.flexGrow = 1;
-        row.Add(valueField);
 
         // Drag Handle
         var dragLabel = new Label("☰") { style = { unityTextAlign = TextAnchor.MiddleCenter, alignSelf = Align.Center } };

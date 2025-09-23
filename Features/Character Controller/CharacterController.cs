@@ -6,9 +6,9 @@ using UnityEngine;
 public class PhysicsBasedCharacterController : MonoBehaviour
 {
     [EventLink(typeof(CharacterMotionContext), nameof(CharacterMotionContext.MoveInput))]
-    public ScriptableEventVector2.Input MoveInput => _motionContext.MoveInput;
+    public ScriptableEventVector2.Input MoveInput => _motionContext?.MoveInput;
     [EventLink(typeof(CharacterMotionContext), nameof(CharacterMotionContext.JumpInput))]
-    public ScriptableEventBoolean.Input JumpInput => _motionContext.JumpInput;
+    public ScriptableEventBoolean.Input JumpInput => _motionContext?.JumpInput;
     public ScriptableEventVector3.Input MoveToPosition = new();
 
     [SchematicProperties]

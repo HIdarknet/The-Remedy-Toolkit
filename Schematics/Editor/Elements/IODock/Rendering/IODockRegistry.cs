@@ -153,7 +153,6 @@ public static class IODockRegistry
                 Debug.LogException(e);
             }
         }
-        if (typeof(SchematicInstanceController).IsAssignableFrom(obj.GetType())) Debug.Log("members " + draw);
 
         return (draw, container);
     }

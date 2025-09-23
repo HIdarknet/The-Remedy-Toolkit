@@ -19,8 +19,6 @@ public class TabView : VisualElement
         }
     }
 
-    public new class UxmlFactory : UxmlFactory<TabView, UxmlTraits> { }
-
     public TabView()
     {
         style.flexDirection = FlexDirection.Column;

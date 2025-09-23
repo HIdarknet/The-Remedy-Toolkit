@@ -150,11 +150,14 @@ namespace Remedy.StateMachines
                 }
             }
 
-            _cachedMonoBehaviours = new();
-            _cachedMonoBehaviours.Add("None");
+            _cachedMonoBehaviours = new()
+            {
+                "None"
+            };
 
             foreach (var MB in gameObject.GetComponents<MonoBehaviour>())
             {
+                if (MB == null || _cachedMonoBehaviours == null) continue;
                 _cachedMonoBehaviours.Add(MB.GetType().Name);
             }
         }
