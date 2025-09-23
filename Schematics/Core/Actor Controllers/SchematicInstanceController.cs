@@ -5,21 +5,29 @@ using Remedy.Schematics.Utils;
 namespace Remedy.Schematics
 {
     [RequireComponent(typeof(ManagerHandshaker))]
-    public class SchematicInstanceController<T> : SchematicInstanceController where T : SchematicGraph
+    public class SchematicInstanceController : MonoBehaviour
     {
+        public List<SchematicVariable> variables;
+
+        ///[ReadOnly]
+        public GameObject Prefab;
+        [Tooltip("Whether the Object is a Singleton or not.")]
+        public bool Singleton = false;
+        public SchematicGraph[] SchematicGraphs = new SchematicGraph[0];
+
         public SchematicScope Scope;
 
-        private Dictionary<string, object> _variables = new();
+        [ScriptableVariableList]
+        public List<ScriptableVariable> Variables = new();
 
         public bool ServerOnly = false;
 
-        protected override void OnEnable()
+        private void OnEnable()
         {
-            base.OnEnable();
-
-            foreach(var graph in SchematicGraphs)
+            foreach (var graph in SchematicGraphs)
             {
-                //graph.Prefab = gameObject;
+                graph?.ReconstructPortConnections();
+
                 Assign(graph);
 
                 foreach (var oninvokeNode in graph.FlowOnInvokeCache)
@@ -136,23 +144,21 @@ namespace Remedy.Schematics
                 if (ScriptGraph != null)
                 {
                     ScriptGraph.GameObject = gameObject;
-                    //ScriptGraph.Prefab = gameObject;
                 }
             }
         }
-        
-        public override void SetVariable(string name, object value)
+        public void Assign(SchematicGraph graph)
         {
-            if(!_variables.ContainsKey(name))
-                _variables.Add(name, value);
-            _variables[name] = value;
-        }
+            if (graph == null) return;
 
-        public override object GetVariable(string name)
-        {
-            if (_variables.ContainsKey(name))
-                return _variables[name];
-            return null;
+            foreach (var kvp in graph.PathsToChildInstances)
+            {
+                graph.OriginalToInstantiatedChildren[kvp.Value] = transform.Find(kvp.Key).gameObject;
+            }
+
+            foreach (var curGraph in SchematicGraphs)
+            {
+            }
         }
     }
 }

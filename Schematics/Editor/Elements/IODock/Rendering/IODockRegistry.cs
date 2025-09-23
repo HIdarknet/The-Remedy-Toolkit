@@ -7,6 +7,7 @@ using System.Reflection;
 using Remedy.Framework;
 using UnityEditor;
 using System.IO;
+using Remedy.Schematics;
 
 public static class IODockRegistry
 {
@@ -104,16 +105,17 @@ public static class IODockRegistry
         List<MemberWrapper> ioMembers = new();
 
         foreach(var field in parent.GetType()
-                                    .GetFields())
+                                    .GetFields(BindingFlags.Public | BindingFlags.Instance))
         {
             ioMembers.Add(field);
         }
 
         foreach (var prop in parent.GetType()
-                                    .GetProperties())
+                                    .GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
             ioMembers.Add(prop);
         }
+
 
         bool draw = false;
         foreach (var field in ioMembers)
@@ -151,6 +153,7 @@ public static class IODockRegistry
                 Debug.LogException(e);
             }
         }
+        if (typeof(SchematicInstanceController).IsAssignableFrom(obj.GetType())) Debug.Log("members " + draw);
 
         return (draw, container);
     }

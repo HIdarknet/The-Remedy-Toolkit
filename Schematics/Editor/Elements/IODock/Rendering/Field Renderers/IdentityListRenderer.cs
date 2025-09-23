@@ -566,30 +566,4 @@ public class IdentityListContainerRenderer : FieldRenderer
             }
         }
     }
-    private void AttemptPrefabRefresh()
-    {
-        if (string.IsNullOrEmpty(_prefabPath)) return;
-        PrefabUtility.SaveAsPrefabAsset(_window.Prefab, _prefabPath);
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-        PrefabRefreshUtility.ReimportAndResetPrefab(_window.Prefab);
-    }
-
-    private GameObject GetPrefabFromTargetId(ulong targetPrefabId)
-    {
-        foreach (var guid in AssetDatabase.FindAssets("t:Prefab"))
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            if (prefab != null)
-            {
-                var goId = GlobalObjectId.GetGlobalObjectIdSlow(prefab);
-                if (goId.targetPrefabId == targetPrefabId)
-                {
-                    return prefab;
-                }
-            }
-        }
-        return null;
-    }
 }

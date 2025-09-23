@@ -198,6 +198,12 @@ namespace SchematicAssets
 
         #endregion
 
+        public static bool AssetExists(UnityEngine.Object obj, string propertyPath, string fieldName, string fileName)
+        {
+            var path = GetAssetPath(obj, propertyPath, fileName, fieldName);
+            return AssetDatabase.AssetPathExists(path);
+        }
+
         /// <summary>
         /// Returns true if a folder for the given Object already exists in the Schematics Asset Database.
         /// </summary>

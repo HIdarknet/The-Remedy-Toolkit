@@ -10,177 +10,103 @@ namespace Remedy.CharacterControllers.WallSlide
     {
         public Rigidbody Rigidbody => gameObject.GetCachedComponent<Rigidbody>();
 
-        public ScriptableEventBoolean.Input JumpInput => MotionContext.JumpInput;
-        public ScriptableEventVector2.Input MoveInput => MotionContext.MoveInput;
+        [EventLink(typeof(CharacterMotionContext), nameof(CharacterMotionContext.JumpInput))]
+        public ScriptableEventBoolean.Input JumpInput => _motionContext.JumpInput;
+        [EventLink(typeof(CharacterMotionContext), nameof(CharacterMotionContext.MoveInput))]
+        public ScriptableEventVector2.Input MoveInput => _motionContext.MoveInput;
 
         public ScriptableEvent.Output OnWallJump = new();
         public ScriptableEvent.Output OnWallSlideExitted = new();
 
+        [SchematicProperties]
         public WallSlideControllerProperties Properties;
 
-        [SchematicProperties]
-        public WallSlideControllerProperties PropertiesData;
-        public CharacterMotionContext MotionContext => _motionContext ??= gameObject.GetCachedComponent<CharacterMotionContext>();
-        public CharacterRaycastContext RaycastContext => _raycastContext ??= gameObject.GetCachedComponent<CharacterRaycastContext>();
-
-        public RaycastHit LastWallHit;
         public Quaternion FacingRotation;
-
-        private Rigidbody _rb => gameObject.GetCachedComponent<Rigidbody>();
-        private Vector3 _gravitationalForce;
-        private bool _alreadyEnded = false;
-        private PhysicsBasedCharacterController _characterController => gameObject.GetCachedComponent<PhysicsBasedCharacterController>();
-
-        private bool _jumpInProgress = false;
-        private Vector3 _jumpDir = Vector3.zero;
-
-        public float Dir = 1;
 
         public enum WallSide { Left, Right }
         public WallSide CurrentWallSide { get; private set; }
 
-        private int _jumpWaitTime = 0;
-        private Vector3 _directionToWall;
-        private Vector3 _wallNormal;
+        public RaycastHit _lastWallHit;
         private Vector3 _facingDir;
-        private Vector3 _euler;
-        private Quaternion _rotation;
-        private bool _wasStuckOnWall = false;
-        private bool _isGrounded = false;
 
+        private bool _cached;
         private CharacterMotionContext _motionContext;
         private CharacterRaycastContext _raycastContext;
-
-        private void OnValidate()
-        {
-            PropertiesData = Properties;
-        }
+        private Transform _transform;
 
         private void OnEnable()
         {
-            _gravitationalForce.y = -Properties.WallSlideSpeed;
+            _cached = false;
+            Cache();
 
-            _rb.freezeRotation = true;
-            _alreadyEnded = false;
-
-            _jumpWaitTime = 0;
-            _wasStuckOnWall = false;
+            JumpInput?.Subscribe(this, Jump);
         }
 
         private void OnDisable()
         {
-            _jumpInProgress = false;
-
             JumpInput?.Unsubscribe(this);
         }
 
         private void FixedUpdate()
         {
-            if(_rb.isKinematic)
-                _rb.isKinematic = false;
+            _motionContext.ApplyVerticalForce(-Properties.WallSlideSpeed, true);
 
-            if (!_jumpInProgress)
+            _motionContext.WallCheckInMoveDirection();
+            if(_raycastContext.WallCastResult.TryGetClosestHit(out RaycastHit hit))
             {
-                _rb.AddForce(_gravitationalForce);
-                _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, Vector3.zero, Properties.WallFriction * Time.fixedDeltaTime);
+                StickOnWall(hit);
             }
-
-            if (_isGrounded && !_alreadyEnded && !_jumpInProgress)
+            else
             {
-                _alreadyEnded = true;
                 OnWallSlideExitted?.Invoke(false);
             }
-
-            _jumpWaitTime += 1;
-
-
-            float closestHitDistance = 99;
-            for (int i = 0; i < 8; i++)
-            {
-                _raycastContext.PerformWallCast(new Vector3(Mathf.Sin(i * 45), 0, Mathf.Cos(i * 45)));
-
-                if (_raycastContext.WallCastResult.TryGetClosestHit(out RaycastHit wallHit))
-                {
-                    if (wallHit.distance < closestHitDistance)
-                    {
-                        closestHitDistance = wallHit.distance;
-                        _wasStuckOnWall = false;
-                        StickOnWall(wallHit);
-                    }
-                }
-            }
-
         }
 
         public void Jump(bool value)
         {
-            if (_jumpInProgress || !enabled || _jumpWaitTime < Properties.OrientationTime || !value)
-                return;
-
-            _rb.isKinematic = true;
-            _rb.rotation = FacingRotation;
-            _rb.isKinematic = false;
-
-            _jumpInProgress = true;
-
-            OnWallJump?.Invoke(default);
-
-            _rb.AddForce(Vector3.up * Properties.JumpForce, ForceMode.Impulse);
-
-            if (CurrentWallSide == WallSide.Right)
-                _rb.AddForce(_jumpDir * Properties.JumpOffForce, ForceMode.Impulse);
-
-            if (CurrentWallSide == WallSide.Left)
-                _rb.AddForce(-_jumpDir * Properties.JumpOffForce, ForceMode.Impulse);
-
-            _rb.rotation = Quaternion.LookRotation(_jumpDir, Vector3.up);
-
-            enabled = false;
+            if(value)
+            {
+                var lateralVelocity = Vector3.ProjectOnPlane(_motionContext.MoveDirection, _lastWallHit.normal);
+                Vector3 jumpDir = (lateralVelocity * Properties.JumpLateralInputInfluence + _lastWallHit.normal).normalized;
+                _motionContext.ApplyForce(jumpDir * Properties.JumpHorizontalForce + Vector3.up * Properties.JumpVerticalForce, true);
+                
+                OnWallJump?.Invoke(default);
+            }
         }
 
+        private void Cache()
+        {
+            if (!_cached)
+            {
+                _motionContext = GetComponent<CharacterMotionContext>();
+                _raycastContext = GetComponent<CharacterRaycastContext>();
+                _transform = transform;
+
+                _cached = true;
+            }
+        }
 
         private void StickOnWall(RaycastHit hit)
         {
-            if (_wasStuckOnWall) return;
-            LastWallHit = hit;
+            _lastWallHit = hit;
 
-            // Direction to the wall
-            _directionToWall = hit.point - transform.position;
-
-            // Project character's forward vector onto the wall plane
-            _facingDir = Vector3.ProjectOnPlane(_directionToWall.normalized, hit.normal).normalized;
-            _facingDir.y = 0;
-
-            // Prevent zero vectors causing LookRotation errors
-            if (_facingDir == Vector3.zero)
-                _facingDir = Vector3.ProjectOnPlane(-transform.right, hit.normal).normalized;
-
-            // Face along the wall with "up" preserved
-            FacingRotation = Quaternion.LookRotation(_facingDir, Vector3.up);
-
-            _euler = FacingRotation.eulerAngles;
-            _euler.y -= 90;
-
-            _rotation = Quaternion.Euler(_euler);
-            _jumpDir = _rotation * Vector3.forward; // Or: rotation.forward
-            _jumpDir.y = 0;
-
-            CurrentWallSide = Vector3.Dot(_directionToWall, _jumpDir) > 0 ? WallSide.Left : WallSide.Right;
-
-            _wasStuckOnWall = true;
-        }
-
-        // Optional: Visualize the wall check ray in the Scene view
-/*        private void OnDrawGizmosSelected()
-        {
-            if (Application.isPlaying && Rigidbody != null && Properties != null)
+            if (_lastWallHit.distance < Properties.GapFromWall)
             {
-                Gizmos.color = Color.gray;
-                Gizmos.DrawRay(transform.position, Rigidbody.linearVelocity * Properties.WallCheckDistance);
+                var projectedTransform = Vector3.ProjectOnPlane(_transform.position, _lastWallHit.normal);
+                _motionContext.TeleportToPosition(projectedTransform + _lastWallHit.normal * Properties.GapFromWall);
             }
 
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(transform.position, _jumpDir * 2f); // shows jump direction
-        }*/
+            _facingDir = Vector3.ProjectOnPlane(_motionContext.HorizontalDirection, _lastWallHit.normal);
+
+            if (_facingDir.sqrMagnitude < 0.001f)
+                _facingDir = Vector3.ProjectOnPlane(-transform.right, _lastWallHit.normal);
+
+            _facingDir.Normalize();
+
+            FacingRotation = Quaternion.LookRotation(_facingDir, Vector3.up);
+
+            float side = Vector3.Dot(_facingDir, _motionContext.HorizontalDirection);
+            CurrentWallSide = side > 0 ? WallSide.Left : WallSide.Right;
+        }
     }
 }

@@ -210,23 +210,24 @@ namespace Remedy.CharacterControllers
 
                 CharacterRenderer.localScale = _scale;
             }
+
             else if (LedgeGrabController.enabled)
             {
                 // Calculate local space offset between hand and renderer
                 _handLocalOffset = CharacterRenderer.InverseTransformPoint(LedgeGrabHandTransform.position);
 
                 // Target position is LedgePosition - that offset in world space
-                _targetRendererPosition = LedgeGrabController.LedgePosition - CharacterRenderer.TransformVector(_handLocalOffset);
+                //_targetRendererPosition = LedgeGrabController.LedgePosition - CharacterRenderer.TransformVector(_handLocalOffset);
 
                 // Smoothly interpolate renderer position to target
                 if (Vector3.Distance(_transform.position, _targetRendererPosition) < 5f)
                     position = Vector3.Lerp(CharacterRenderer.position, _targetRendererPosition, PositionFollowSpeed * Time.deltaTime);
                 CharacterRenderer.position = position;
-
+/*
                 if (LedgeGrabController.CurrentWallSide == LedgeGrabController.WallSide.Left)
                     CharacterRenderer.rotation = LedgeGrabController.FacingRotation;
                 if (LedgeGrabController.CurrentWallSide == LedgeGrabController.WallSide.Right)
-                    CharacterRenderer.rotation = Quaternion.Euler(LedgeGrabController.FacingRotation.eulerAngles + new Vector3(0, 180, 0));
+                    CharacterRenderer.rotation = Quaternion.Euler(LedgeGrabController.FacingRotation.eulerAngles + new Vector3(0, 180, 0));*/
 
                 _scale.x = _baseScale.x;
                 _scale.y = _baseScale.y;

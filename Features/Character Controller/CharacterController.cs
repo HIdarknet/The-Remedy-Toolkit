@@ -1,5 +1,3 @@
-using Remedy.Framework;
-//using SaintsField;
 using UnityEngine;
 
 [SchematicComponent("Movement/3D/Default Character Controller")]
@@ -8,55 +6,45 @@ using UnityEngine;
 public class PhysicsBasedCharacterController : MonoBehaviour
 {
     [EventLink(typeof(CharacterMotionContext), nameof(CharacterMotionContext.MoveInput))]
-    public ScriptableEventVector2.Input MoveInput => MotionContext.MoveInput;
+    public ScriptableEventVector2.Input MoveInput => _motionContext.MoveInput;
     [EventLink(typeof(CharacterMotionContext), nameof(CharacterMotionContext.JumpInput))]
-    public ScriptableEventBoolean.Input JumpInput => MotionContext.JumpInput;
+    public ScriptableEventBoolean.Input JumpInput => _motionContext.JumpInput;
     public ScriptableEventVector3.Input MoveToPosition = new();
 
     [SchematicProperties]
     public CharacterControllerProperties Properties;
-
-    public CharacterMotionContext MotionContext => _motionContext ??= gameObject.GetComponent<CharacterMotionContext>();
-    public CharacterRaycastContext RaycastContext => _raycastContext ??= gameObject.GetComponent<CharacterRaycastContext>();
 
     // Cached
     private bool _cached = false;
     private CharacterRaycastContext _raycastContext;
     private CharacterMotionContext _motionContext;
     private Transform _transform;
+    private float _dt;
 
-    // Internal Values
-    //private Vector3 _velocity = default;
-    private Vector3 _wallProjectedVelocity = default;
-    private float _targetYaw;
+    // State vars
     private Vector3 _moveInput = default;
-    private Vector3 _moveDirection = default;
-    private Vector3 _wallNormal;
-
     private bool _prevGrounded = false;
     private bool _isJumping = false;
     private float _jumpResetTime = 0f;
     private float _jumpBufferTime = 0f;
     private float _jumpArcY = 0f;
     private bool _reachedJumpArc = false;
-
     private float _tempHangTimeDuration = -1; // > 0 = use this instead of default Hang Time
     private float _currentHangTime = 0f;
-    private float _dt;
     private float _hoverHeight;
     private float _jumpStartGroundHeight;
     private float _groundY = 0;
     private bool _hadJumped = false;
+    private bool _canJump = true;
+    private bool _enableGravity = true;
+
 
     private void OnEnable()
     {
-        if(!_cached)
-        {
-            _transform = gameObject.GetComponent<Transform>();
-            _raycastContext = gameObject.GetCachedComponent<CharacterRaycastContext>();
-            _motionContext = gameObject.GetCachedComponent<CharacterMotionContext>();
-            _cached = true;
-        }
+        Cache();
+
+        _motionContext.IsKinematic = false;
+        _canJump = true;
 
         _currentHangTime = Properties.HangTimeDuration;
         _jumpBufferTime = Properties.JumpBuffer;
@@ -72,8 +60,24 @@ public class PhysicsBasedCharacterController : MonoBehaviour
             _moveInput.y = value ? 1 : 0;
 
             if (value)
-                _jumpBufferTime = 0f;
+            {
+                if (_canJump)
+                {
+                    _jumpBufferTime = 0f;
+                    _canJump = false;
+                }
+            }
+            else
+                _canJump = true;
         });
+    }
+
+    private void Cache()
+    {
+        _transform = gameObject.GetComponent<Transform>();
+        _raycastContext = gameObject.GetComponent<CharacterRaycastContext>();
+        _motionContext = gameObject.GetComponent<CharacterMotionContext>();
+        _dt = Time.fixedDeltaTime;
     }
 
     private void OnDisable()
@@ -85,9 +89,8 @@ public class PhysicsBasedCharacterController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        _dt = Time.fixedDeltaTime;
         HandleGroundRide();
-        HandleHorizontalMovement();
+        _motionContext.ApplyCappedHorizontalForce(_moveInput, Properties.MoveSpeed, Properties.Acceleration, Properties.Deceleration);
         HandleJump();
     }
 
@@ -99,46 +102,14 @@ public class PhysicsBasedCharacterController : MonoBehaviour
             _groundY = _raycastContext.GroundPosition.y;
             _prevGrounded = true;
             _reachedJumpArc = false;
-            SpringToY(_groundY, Properties.RideHeight);
+            _motionContext.SpringToY(_groundY, Properties.RideHeight, Properties.RideSpringStrength, Properties.HangTimeDamper, Properties.MaxHoverForce);
         }
         else
         {
-            _motionContext.ApplyGravity();
+            if(_enableGravity)
+                _motionContext.ApplyGravity();
+
             _prevGrounded = false;
-        }
-    }
-
-    private void HandleHorizontalMovement()
-    {
-        float desiredSpeed = Properties.MoveSpeed;
-        float desiredRateOfChange = Properties.Acceleration;
-
-        if (Mathf.Abs(_moveInput.x) + Mathf.Abs(_moveInput.z) < 0.1f)
-        {
-            desiredSpeed = 0;
-            desiredRateOfChange = Properties.Deceleration;
-        }
-
-        _moveDirection = _moveInput;
-
-        if (_motionContext.CameraTransform != null)
-            _moveDirection = _motionContext.TransformInputDirection(_moveInput);
-
-        _moveDirection.y = 0f;
-        _moveDirection.Normalize();
-
-        Vector3 desiredVel = (_moveDirection * desiredSpeed);
-
-        Vector3 clampedVel = desiredVel.normalized * desiredSpeed;
-        Vector3 excess = _motionContext.HorizontalVelocity - clampedVel;
-
-        Vector3 correction = -excess.normalized * desiredRateOfChange;
-
-        _motionContext.ApplyHorizontalForce(correction * _dt);
-
-        if (Mathf.Abs(desiredVel.x) + Mathf.Abs(desiredVel.z) > 0.01f)
-        {
-            _targetYaw = Mathf.Atan2(_moveDirection.x, _moveDirection.z) * Mathf.Rad2Deg;
         }
     }
 
@@ -175,6 +146,7 @@ public class PhysicsBasedCharacterController : MonoBehaviour
                 _reachedJumpArc = false;
 
                 _hadJumped = true;
+                _enableGravity = false;
             }
         }
         else if(_isJumping)
@@ -195,35 +167,19 @@ public class PhysicsBasedCharacterController : MonoBehaviour
         else if (_currentHangTime < hangTimeDuration && _hadJumped)
         {
             if(_reachedJumpArc)
-                SpringToY(_jumpStartGroundHeight, Properties.JumpHeight);
-            else
-            {
-                if (_hoverHeight < _transform.position.y)
-                    _hoverHeight = _transform.position.y;
-                SpringToY(_jumpStartGroundHeight, _hoverHeight);
-            }
+                _motionContext.SpringToY(_jumpStartGroundHeight, Properties.JumpHeight, Properties.RideSpringStrength, Properties.HangTimeDamper, Properties.MaxHoverForce);
+
             _currentHangTime += _dt;
         }
         else if(!_prevGrounded)
         {
             _motionContext.ApplyVerticalForce(-Properties.FallSpeed);
+            _enableGravity = true;
         }
 
         _jumpBufferTime += _dt;
     }
 
-
-    private void SpringToY(float groundYPosition, float targetYPosition)
-    {
-        float distance = Mathf.Abs(Mathf.Abs(groundYPosition) - Mathf.Abs(_transform.position.y));
-        float heightError = distance - targetYPosition;
-        float velAlongNormal = Vector3.Dot(Vector3.down, _motionContext.Velocity);
-        float differenceForce = (heightError * Properties.RideSpringStrength) - (velAlongNormal * Properties.VerticalSpringDamper);
-
-        float finalForce = Mathf.Clamp((differenceForce) * _dt, -Properties.MaxHoverForce, Properties.MaxHoverForce);
-
-        _motionContext.ApplyVerticalForce(-finalForce);
-    }
 
     private void OnCollisionEnter(Collision collision)
     {

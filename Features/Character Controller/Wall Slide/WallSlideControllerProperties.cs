@@ -1,4 +1,3 @@
-//using SaintsField.Playa;
 using UnityEngine;
 
 namespace Remedy.CharacterControllers.WallSlide
@@ -7,18 +6,14 @@ namespace Remedy.CharacterControllers.WallSlide
     [CreateAssetMenu(menuName = "Remedy Toolkit/3D Platformer/Wall Slide & Jump Properties")]
     public class WallSlideControllerProperties : ScriptableObjectWithID<WallSlideControllerProperties>
     {
-        public float AlignmentSpeed = 15f;
-        public float WallFriction = 10f;
+        public float GapFromWall = 0.5f;
 
         [Header("Jump")]
-        public float JumpForce = 5f;
-        public float JumpOffForce = 10f;
-        public int JumpForceDuration = 60;
-        public float CancelJumpGravity = 20f;        // Gravity override when jump is canceled early
-        public int OrientationTime = 30;
+        public float JumpVerticalForce = 3f;
+        public float JumpHorizontalForce = 2f;
+        public float JumpLateralInputInfluence = 0.25f;
 
         [Header("Slide")]
         public float WallSlideSpeed = 2f;
-        public float WallStickForce = 1f; // New: Force to pull character into wall
     }
 }

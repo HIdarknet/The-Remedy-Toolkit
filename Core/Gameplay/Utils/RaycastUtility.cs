@@ -74,7 +74,7 @@ namespace Remedy.Framework
             result.ClosestHitIndex = -1;
 
             int hitCount = Physics.SphereCastNonAlloc(
-                origin,
+                origin -= direction * (radius * 0.5f),
                 radius,
                 direction,
                 s_ScratchBuffer,
@@ -94,6 +94,7 @@ namespace Remedy.Framework
 
                 if (hit.transform == null || hit.transform == source) continue;
                 if (hit.distance > validDistance) continue;
+                if (hit.point == default) continue;
 
                 float dot = Vector3.Dot(hit.normal, direction);
                 if (minAngleDeg > 0 && dot < minDot) continue;

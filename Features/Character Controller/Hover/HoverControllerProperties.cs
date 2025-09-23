@@ -1,9 +1,7 @@
 ﻿using UnityEngine;
-//using SaintsField.Playa;
 
 namespace Remedy.CharacterControllers.Hover
 {
-    //[Searchable]
     [CreateAssetMenu(menuName = "Remedy Toolkit/3D Platformer/Hover Properties")]
     public class HoverControllerProperties : ScriptableObjectWithID<HoverControllerProperties>
     {
@@ -14,6 +12,8 @@ namespace Remedy.CharacterControllers.Hover
 
         [Header("Movement")]
         public float HorizontalSpeed = 10f;
+        public float HorizontalAcceleration = 30f;
+        public float HorizontalDeceration = 15f;
 
         [Header("Ride and Fall")]
         public float RiseSpeed = 120f;

@@ -39,4 +39,13 @@ public class FieldRenderer : VisualElement
 
     protected virtual void Redraw()
     { }
+
+    protected void AttemptPrefabRefresh()
+    {
+        if (string.IsNullOrEmpty(_prefabPath)) return;
+        PrefabUtility.SaveAsPrefabAsset(_window.Prefab, _prefabPath);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        PrefabRefreshUtility.ReimportAndResetPrefab(_window.Prefab);
+    }
 }

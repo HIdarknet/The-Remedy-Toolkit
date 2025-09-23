@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class CharacterRaycastContext : MonoBehaviour
 {
+    public ScriptableEventVector3.Input CheckForWall;
+    public ScriptableEventRaycastHits.Output OnHitWall;
+
     public bool IsGrounded = false;
     public Vector3 GroundPosition = default;
     public Vector3 WallPosition = default;
@@ -19,16 +22,12 @@ public class CharacterRaycastContext : MonoBehaviour
 
     private void OnEnable()
     {
-        if (!_cached)
-        {
-            _transform = gameObject.GetComponent<Transform>();
-            _cached = true;
-        }
+        _transform = gameObject.GetComponent<Transform>();
     }
 
     public void PerformGroundCast()
     {
-        GroundCastResult = RaycastUtility.SphereCast(_transform, _transform.position, Vector3.down, Properties.GroundCheckSphereRadius, Properties.GroundCheckDistance, Properties.CollisionMask, -1f, Properties.MaxGroundSlopeAngle);
+        GroundCastResult = RaycastUtility.SphereCast(_transform, _transform.position, Vector3.down, Properties.GroundCheckSphereRadius, Properties.GroundCheckDistance, Properties.CollisionMask, -1f, Properties.MaxGroundSlopeAngle, Properties.GroundCheckDistance);
         
         if(GroundCastResult.TryGetClosestHit(out RaycastHit hit))
         {
@@ -39,7 +38,7 @@ public class CharacterRaycastContext : MonoBehaviour
     }
     public void PerformWallCast(Vector3 direction)
     {
-        WallCastResult = RaycastUtility.SphereCast(_transform, _transform.position, direction, Properties.WallCheckSphereRadius, Properties.WallCheckDistance, Properties.CollisionMask, Properties.MinWallAngle, Properties.MaxWallAngle);
+        WallCastResult = RaycastUtility.SphereCast(_transform, _transform.position, direction, Properties.WallCheckSphereRadius, Properties.WallCheckDistance, Properties.CollisionMask, Properties.MinWallAngle, Properties.MaxWallAngle, Properties.WallCheckDistance);
 
         if (WallCastResult.TryGetClosestHit(out RaycastHit hit))
         {
@@ -48,7 +47,6 @@ public class CharacterRaycastContext : MonoBehaviour
             _wallNorm = hit.normal;
         }
     }
-
 
     private void OnDrawGizmos()
     {

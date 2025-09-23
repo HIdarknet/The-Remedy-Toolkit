@@ -218,6 +218,7 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
         };
         _sidebarTabs.AddTab("Global");
         _sidebarTabs.AddTab("Prefab");
+        _sidebarTabs.AddTab("Variables");
 
         _sidebarAndContent.SidebarContainer.Add(_sidebarTabs);
 
@@ -290,10 +291,6 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
                 }
             }
         }
-/*
-        rootVisualElement.RegisterCallback<KeyDownEvent>(OnKeyDown, TrickleDown.TrickleDown);
-*/
-
 
         if (_prefabPath == null)
             _prefabPath = AssetDatabase.GetAssetPath(Prefab);
@@ -301,6 +298,8 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
         SchematicEditorData.Instance.ScriptableEventReferenceDebug = EventManager.WorkingSet;
 
         Application.focusChanged += (bool val) => Canvas.Reload();
+
+        Canvas.Reload();
     }
 
     /// <summary>
@@ -320,6 +319,7 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
 
         RedrawGlobalIO();
         RedrawPrefabIO();
+        RedrawGraphIO();
     }
 
     private void RedrawGlobalIO()
@@ -379,6 +379,12 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
         }
     }
 
+    private void RedrawGraphIO()
+    {
+        // Draw
+        _sidebarTabs["Variables"].Clear();
+        _sidebarTabs["Variables"].Add(IODockRegistry.RenderMultipleFields(this, Prefab.GetComponent<SchematicInstanceController>(), Prefab.GetComponent<SchematicInstanceController>()).Item2);
+    }
 
     /// <summary>
     /// Handles drag-and-drop update events over the canvas.

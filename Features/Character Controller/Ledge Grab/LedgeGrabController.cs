@@ -1,277 +1,112 @@
 using Remedy.Framework;
-/*using SaintsField;
-using SaintsField.Playa;*/
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Remedy.CharacterControllers.LedgeGrab
 {
     [RequireComponent(typeof(CharacterMotionContext))]
     [RequireComponent(typeof(CharacterRaycastContext))]
-    [SchematicComponent("Movement/3D/Ledge Grab Controller")]
-    //[Searchable]
+    [SchematicComponent("Movement/3D/Wall Slide Controller")]
     public class LedgeGrabController : MonoBehaviour
     {
-        /*[Layout("Settings", ELayout.Tab | ELayout.Collapse)]
-        [Layout("Settings/Events", ELayout.Tab | ELayout.Collapse)]
-        [LayoutStart("./Input")]*/
-        public ScriptableEventBoolean.Input JumpInput => MotionContext.JumpInput;
-        public ScriptableEventVector2.Input MoveInput => MotionContext.MoveInput;
+        public Rigidbody Rigidbody => gameObject.GetCachedComponent<Rigidbody>();
 
-        /*[Layout("Settings", ELayout.Tab | ELayout.Collapse)]
-        [Layout("Settings/Events", ELayout.Tab | ELayout.Collapse)]
-        [LayoutStart("./Output")]*/
-        public ScriptableEvent.Output OnLedgeGrabStart;
-        public ScriptableEvent.Output OnLedgeGrabEnd;
+        [EventLink(typeof(CharacterMotionContext), nameof(CharacterMotionContext.JumpInput))]
+        public ScriptableEventBoolean.Input JumpInput => _motionContext.JumpInput;
+        [EventLink(typeof(CharacterMotionContext), nameof(CharacterMotionContext.MoveInput))]
+        public ScriptableEventVector2.Input MoveInput => _motionContext.MoveInput;
 
-
-        /*[Layout("Settings", ELayout.Tab | ELayout.Collapse)]
-        [Layout("Settings/Component", ELayout.Tab | ELayout.Collapse)]
-        [LayoutStart("./Properties")]
-        [Dropdown("GetProperties")]*/
-        public LedgeGrabControllerProperties Properties;
+        public ScriptableEvent.Output OnClamber = new();
+        public ScriptableEvent.Output OnLedgeGrabExitted = new();
 
         [SchematicProperties]
-        //[Expandable]
-        public LedgeGrabControllerProperties PropertiesData;
-        public CharacterMotionContext MotionContext => _motionContext ??= gameObject.GetCachedComponent<CharacterMotionContext>();
-        public CharacterRaycastContext RaycastContext => _raycastContext ??= gameObject.GetCachedComponent<CharacterRaycastContext>();
+        public LedgeGrabControllerProperties Properties;
 
-        /*public DropdownList<LedgeGrabControllerProperties> GetProperties()
-        {
-            var list = new DropdownList<LedgeGrabControllerProperties>();
-
-            if (LedgeGrabControllerProperties.Lookup.Keys.Count == 0)
-                list.Add("None Created", null);
-            else
-            {
-                foreach (var item in LedgeGrabControllerProperties.Lookup.Values)
-                {
-                    list.Add(item.name, item);
-                }
-            }
-
-            return list;
-        }
-
-        [Layout("Settings", ELayout.Tab | ELayout.Collapse)]
-        [Layout("Settings/Component", ELayout.Tab | ELayout.Collapse)]
-        [LayoutStart("./Variables")]*/
-        public RaycastHit LastWallHit;
         public Quaternion FacingRotation;
-        public Vector3 LedgePosition = Vector3.zero;
-        public Vector2 MoveAxisInput = Vector2.zero;
-
-        public bool IsClambering = false;
-
-        private bool _cached = false;
-        private CharacterMotionContext _motionContext;
-        private CharacterRaycastContext _raycastContext;
-        private Transform _transform;
-        private Rigidbody _rb;
-
-        private Vector3 _jumpDir = Vector3.zero;
-        private Vector3 _moveInput;
-        Vector3 directionToWall;
-
-        public float Dir = 1;
 
         public enum WallSide { Left, Right }
         public WallSide CurrentWallSide { get; private set; }
 
-        private int _jumpWaitTime = 0;
-        private Vector3 _ogPosition = Vector3.zero;
-
-        private int _translateTime = 0;
-        private bool _translating = false;
-        private bool _clamber = false;
-        private RaycastHit _closestHit;
-        private bool _alreadyPositioned = false;
-        private Vector3 _wallNormal;
+        public RaycastHit _lastWallHit;
         private Vector3 _facingDir;
-        private Vector3 _euler;
-        private Quaternion _rotation;
 
-        private void OnValidate()
-        {
-            PropertiesData = Properties;
-        }
+        private bool _cached;
+        private CharacterMotionContext _motionContext;
+        private CharacterRaycastContext _raycastContext;
+        private Transform _transform;
+        private List<Vector3> _clamberPoints = new();
 
         private void OnEnable()
         {
-            if(_cached)
+            _cached = false;
+            Cache();
+
+            JumpInput?.Subscribe(this, Jump);
+
+            _motionContext.WallCheckInMoveDirection();
+            if (_raycastContext.WallCastResult.TryGetClosestHit(out RaycastHit hit))
             {
-                _transform = transform;
-                _rb = gameObject.GetCachedComponent<Rigidbody>();
-                _motionContext = gameObject.GetCachedComponent<CharacterMotionContext>();
-                _raycastContext = gameObject.GetCachedComponent<CharacterRaycastContext>();
-                _cached = true;
+                StickOnWall(hit);
             }
-
-            JumpInput?.Subscribe(this, (bool value) =>
-            {
-                if (!value) return;
-                _clamber = true;
-                _translating = true;
-                IsClambering = true;
-            });
-            MoveInput?.Subscribe(this, Move);
-
-            OnLedgeGrabStart?.Invoke(true);
-
-            _rb.freezeRotation = true;
-
-            _jumpWaitTime = 0;
-            _rb.isKinematic = true;
-
-            MoveAxisInput = Vector2.zero;
-
-            _ogPosition = _transform.position;
-            _translating = false;
-            _translateTime = 0;
         }
 
         private void OnDisable()
         {
-            OnLedgeGrabEnd?.Invoke(false);
-            _rb.isKinematic = false;
-            _alreadyPositioned = false;
-            LedgePosition = Vector3.zero;
-
             JumpInput?.Unsubscribe(this);
-            MoveInput?.Unsubscribe(this);
         }
 
-        private void Update()
+        public void Jump(bool value)
         {
-            if (!_alreadyPositioned) return;
-            if (LedgePosition == Vector3.zero)
+            if (value)
             {
-                enabled = false;
-                return;
+                _clamberPoints[0] = _transform.position + Properties.ClamberHeight * Vector3.up;
+                _clamberPoints[1] = (_transform.position + Properties.ClamberHeight * Vector3.up) + -_lastWallHit.normal * Properties.ClamberForward;
+                _motionContext.FollowSpringPath(_transform.position.y, _clamberPoints);
+                OnClamber?.Invoke(default);
             }
-
-            _moveInput = new Vector3(MoveAxisInput.x, 0, MoveAxisInput.y);
-            _moveInput = _motionContext.TransformInputDirection(_moveInput);
-
-            _rb.linearVelocity = Vector3.zero;
-
-            _jumpWaitTime++;
-
-            if (_moveInput != Vector3.zero && _jumpWaitTime > Properties.OrientationTime)
-            {
-                if (Vector3.Dot(directionToWall.normalized, _moveInput) > 0f)
-                {
-                    _clamber = true;
-                    _translating = true;
-                    IsClambering = true;
-                }
-                else
-                {
-                    _clamber = false;
-                    _translating = true;
-                }
-            }
-
-            if (_translating)
-            {
-                if (_clamber)
-                {
-                    _rb.transform.position = LedgePosition + new Vector3(0, Properties.LedgeOffset, 0);
-                    _transform.position = LedgePosition + new Vector3(0, Properties.LedgeOffset, 0);
-
-                    if (_translateTime >= Properties.ClamberTime)
-                    {
-                        enabled = false;
-                    }
-                    _translateTime++;
-                }
-                else
-                {
-                    _rb.transform.position = _ogPosition;
-                    _transform.position = _ogPosition;
-                    enabled = false;
-                }
-            }
-
-            _raycastContext.PerformWallCast(_moveInput);
-
-            if (_raycastContext.WallCastResult.TryGetClosestHit(out RaycastHit wallHit))
-                StickOnWall(wallHit);
         }
 
-        public void Move(Vector2 input)
+        private void Cache()
         {
-            if (_jumpWaitTime > Properties.OrientationTime)
-                MoveAxisInput = input;
+            if (!_cached)
+            {
+                _motionContext = GetComponent<CharacterMotionContext>();
+                _raycastContext = GetComponent<CharacterRaycastContext>();
+                _transform = transform;
+                _clamberPoints.Capacity = 2;
+                _cached = true;
+            }
         }
-
 
         private void StickOnWall(RaycastHit hit)
         {
-            if (_alreadyPositioned) return;
+            _lastWallHit = hit;
 
-            if (Vector3.Distance(_transform.position, hit.point) > 3) enabled = false;
+            _facingDir = -_lastWallHit.normal;
 
-            LastWallHit = hit;
-
-            // Direction to the wall
-            directionToWall = hit.point - _transform.position;
-            directionToWall.Normalize();
-
-            // Get the wall normal
-            _wallNormal = hit.normal;
-
-            _facingDir = Vector3.ProjectOnPlane(directionToWall.normalized, _wallNormal).normalized;
-            _facingDir.y = 0;
-
-            // Face along the wall with "up" preserved
             FacingRotation = Quaternion.LookRotation(_facingDir, Vector3.up);
 
-            _euler = FacingRotation.eulerAngles;
-            _euler.y -= 90;
+            float side = Vector3.Dot(_facingDir, _motionContext.HorizontalDirection);
+            CurrentWallSide = side > 0 ? WallSide.Left : WallSide.Right;
 
-            _rotation = Quaternion.Euler(_euler);
-            _jumpDir = _rotation * Vector3.forward;
-            _jumpDir.y = 0;
+            var ledgeResult = RaycastUtility.SphereCast(_transform, _transform.position, _facingDir, Properties.LedgeCheckRadius, _raycastContext.Properties.CollisionMask, -1, _raycastContext.Properties.MaxGroundSlopeAngle);
 
-            FacingRotation = Quaternion.LookRotation(_jumpDir, Vector3.up);
-            CurrentWallSide = Vector3.Dot(directionToWall, _jumpDir) > 0 ? WallSide.Left : WallSide.Right;
-
-            _closestHit = hit;
-            AdjustHandPosition(hit.point);
-            _alreadyPositioned = true;
-        }
-
-        private void AdjustHandPosition(Vector3 wallContactPoint)
-        {
-            if (CurrentWallSide == WallSide.Right)
+            if (_lastWallHit.distance < Properties.GapFromWall)
             {
-                if (RaycastUtility.SphereCast(_transform, _transform.position + new Vector3(0, Properties.LedgeOffset, 0) - _jumpDir, Vector3.down, Properties.LedgeCheckRadius, Properties.LedgeOffset, _raycastContext.Properties.CollisionMask).TryGetClosestHit(out RaycastHit ledgeHit))
+                if (ledgeResult.TryGetClosestHit(out RaycastHit ledgeHit))
                 {
-                    LedgePosition = new Vector3(wallContactPoint.x, ledgeHit.point.y, wallContactPoint.z);
+                    var ledgeProjectedPosition = Vector3.ProjectOnPlane(_transform.position, ledgeHit.normal);
+                    var wallProjectedPosition = Vector3.ProjectOnPlane(_transform.position, _lastWallHit.normal);
+
+                    ledgeProjectedPosition.y = 0;
+                    wallProjectedPosition.x = 0;
+                    wallProjectedPosition.y = 0;
+
+                    var actualPosition = ledgeProjectedPosition + wallProjectedPosition;
+
+                    _motionContext.TeleportToPosition(actualPosition + _lastWallHit.normal * Properties.GapFromWall);
                 }
             }
-            else
-            {
-                if (RaycastUtility.SphereCast(_transform, _transform.position + new Vector3(0, Properties.LedgeOffset, 0) + _jumpDir, Vector3.down, Properties.LedgeCheckRadius, Properties.LedgeOffset, _raycastContext.Properties.CollisionMask).TryGetClosestHit(out RaycastHit ledgeHit))
-                {
-                    LedgePosition = new Vector3(wallContactPoint.x, ledgeHit.point.y, wallContactPoint.z);
-                }
-            }
-            if (Vector3.Distance(_transform.position, LedgePosition) > 3) enabled = false;
-        }
-
-        private void OnDrawGizmosSelected()
-        {
-            if (Application.isPlaying && _rb != null && Properties != null)
-            {
-                Gizmos.color = Color.gray;
-            }
-
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(_transform.position, _jumpDir * 2f); // shows jump direction
-
-            Gizmos.DrawCube(_closestHit.point, Vector3.one);
         }
     }
 }

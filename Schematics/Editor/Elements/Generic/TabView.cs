@@ -71,9 +71,24 @@ public class TabView : VisualElement
         _tabContentMap[tabId] = content;
 
         // === Tab Button ===
-        var tabButton = new Button { text = "", tooltip = tabId };
-        tabButton.style.flexDirection = FlexDirection.Row;
-        tabButton.style.alignItems = Align.Center;
+        var tabButton = new Button
+        {
+            text = "",
+            tooltip = tabId,
+            style =
+            {
+                flexDirection = FlexDirection.Row,
+                alignItems = Align.Center,
+
+                marginLeft = 0,
+                marginRight = 0,
+
+                borderTopLeftRadius = 0,
+                borderTopRightRadius = 0,
+                borderBottomLeftRadius = 0,
+                borderBottomRightRadius = 0
+            }
+        };
 
         if (icon != null)
         {
