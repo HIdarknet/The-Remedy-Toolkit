@@ -18,7 +18,6 @@ public class PhysicsBasedCharacterController : MonoBehaviour
     private bool _cached = false;
     private CharacterRaycastContext _raycastContext;
     private CharacterMotionContext _motionContext;
-    private Transform _transform;
     private float _dt;
 
     // State vars
@@ -41,6 +40,7 @@ public class PhysicsBasedCharacterController : MonoBehaviour
 
     private void OnEnable()
     {
+        _cached = false;
         Cache();
 
         _motionContext.IsKinematic = false;
@@ -74,10 +74,13 @@ public class PhysicsBasedCharacterController : MonoBehaviour
 
     private void Cache()
     {
-        _transform = gameObject.GetComponent<Transform>();
-        _raycastContext = gameObject.GetComponent<CharacterRaycastContext>();
-        _motionContext = gameObject.GetComponent<CharacterMotionContext>();
-        _dt = Time.fixedDeltaTime;
+        if(!_cached)
+        {
+            _raycastContext = gameObject.GetComponent<CharacterRaycastContext>();
+            _motionContext = gameObject.GetComponent<CharacterMotionContext>();
+            _dt = Time.fixedDeltaTime;
+            _cached = true;
+        }
     }
 
     private void OnDisable()

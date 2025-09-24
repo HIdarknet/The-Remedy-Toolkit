@@ -34,8 +34,7 @@ namespace Remedy.Schematics
                 {
                     var isInvoking = false;
 
-                    oninvokeNode.Subscription.instance = this;
-                    oninvokeNode.Subscription.action = (Union value) =>
+                    oninvokeNode.Event.Subscribe(this, (Union value) =>
                     {
                         if (isInvoking) return;
                         try
@@ -47,7 +46,7 @@ namespace Remedy.Schematics
                         {
                             isInvoking = false;
                         }
-                    };
+                    }, null);
 
                     oninvokeNode.UpdateCaches();
                 }

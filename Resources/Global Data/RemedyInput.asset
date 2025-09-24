@@ -162,7 +162,7 @@ MonoBehaviour:
         DefaultDirectoryPath: 
         ID: 67
         Events:
-        - {fileID: 11400000, guid: 710c7b28ec748794e91c657cd7d98a58, type: 2}
+        - {fileID: 0}
         Channel: 0
         Await:
           Events: []

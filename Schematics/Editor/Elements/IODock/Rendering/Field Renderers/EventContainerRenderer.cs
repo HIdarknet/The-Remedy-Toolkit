@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine.UIElements;
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.TextCore.Text;
 
 [FieldRendererTarget(typeof(EventContainerRendererAttribute))]
 public class EventContainerRenderer : FieldRenderer
@@ -49,23 +50,25 @@ public class EventContainerRenderer : FieldRenderer
 
     protected void DrawEventContainer()
     {
-        ScriptableEventReference ser = null;
-        bool loadedFromOther = false;
-        
-        if(_linkAttr != null)
+        var column = new VisualElement
         {
-            if(_cachedReferences.TryGetValue((_linkAttr.Type, _linkAttr.FieldName), out ser))
+            style =
             {
-                loadedFromOther = true;
+                flexDirection = FlexDirection.Column,
+                backgroundColor = new Color(0, 0, 0, 0.1f),
+
+                borderBottomColor = Color.gray4,
+                borderTopColor = Color.gray4,
+
+                borderLeftWidth = 2,
+                borderRightWidth = 2,
+                borderTopWidth = 1,
+                borderBottomWidth = 1,
+
+                borderRightColor = Color.black,
+                borderLeftColor = Color.black
             }
-        }
-
-        if(!loadedFromOther)
-        {
-            ser = _window.EventManager.GetOrCreateEventReference(_object, _path, _field, _evAttr.DefaultType, _evAttr.DefaultName);
-
-            _cachedReferences.Add((_object.GetType(), _field.Name), ser);
-        }
+        };
 
         var row = new VisualElement
         {
@@ -76,22 +79,43 @@ public class EventContainerRenderer : FieldRenderer
                 marginBottom = 2,
                 paddingBottom = 2,
                 paddingTop = 2,
-                backgroundColor = new Color(0, 0, 0, 0.1f),
-                borderBottomColor = new Color(0, 0, 0, 0.3f),
                 borderBottomWidth = 0,
                 paddingLeft = 0
             }
         };
 
-        row.style.borderLeftWidth = 2;
-        row.style.borderRightWidth = 2;
-        row.style.borderTopWidth = 2;
-        row.style.borderBottomWidth = 2;
+        ScriptableEventReference ser = null;
+        bool loadedFromOther = false;
+        
+        if(_linkAttr != null)
+        {
+            if(_cachedReferences.TryGetValue((_linkAttr.Type, _linkAttr.FieldName), out ser))
+            {
+                loadedFromOther = true;
 
-        row.style.borderBottomColor = new Color(0, 0, 0, 0);
-        row.style.borderRightColor = new Color(0, 0, 0, 0);
-        row.style.borderTopColor = new Color(0, 0, 0, 0);
-        row.style.borderLeftColor = new Color(0, 0, 0, 0);
+                var parentLabel = new Label
+                {
+                    text = "> " + _linkAttr.Type  + _linkAttr.FieldName,
+                    style =
+                    {
+                        fontSize = 8,
+                        color = Color.gray8,
+
+                        marginTop = 2,
+                        marginLeft = 2
+                    }
+                };
+
+                column.Add(parentLabel);
+            }
+        }
+
+        if(!loadedFromOther)
+        {
+            ser = _window.EventManager.GetOrCreateEventReference(_object, _path, _field, _evAttr.DefaultType, _evAttr.DefaultName);
+
+            _cachedReferences.Add((_object.GetType(), _field.Name), ser);
+        }
 
         // Name field
         var nameField = new TextField { value = ser.EventName, style = { flexGrow = 1, paddingLeft = 0 } };
@@ -169,20 +193,20 @@ public class EventContainerRenderer : FieldRenderer
         {
             if (SchematicGraphEditorWindow.ColorLookupValueType.ContainsKey(argType))
             {
-                row.style.borderBottomColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
-                row.style.borderRightColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
-                row.style.borderTopColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
-                row.style.borderLeftColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
+                column.style.borderBottomColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
+                column.style.borderRightColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
+                column.style.borderTopColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
+                column.style.borderLeftColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
             }
         });
 
         dragLabel.RegisterCallback<MouseLeaveEvent>(evt =>
         {
 
-            row.style.borderBottomColor = new Color(0, 0, 0, 0);
-            row.style.borderRightColor = new Color(0, 0, 0, 0);
-            row.style.borderTopColor = new Color(0, 0, 0, 0);
-            row.style.borderLeftColor = new Color(0, 0, 0, 0);
+            column.style.borderBottomColor = Color.gray4;
+            column.style.borderRightColor = new Color(0, 0, 0, 0);
+            column.style.borderTopColor = Color.gray4;
+            column.style.borderLeftColor = new Color(0, 0, 0, 0);
         });
 
         typePopup.RegisterValueChangedCallback(evt =>
@@ -202,19 +226,19 @@ public class EventContainerRenderer : FieldRenderer
 
             dragLabel.RegisterCallback<MouseEnterEvent>(evt =>
             {
-                row.style.borderBottomColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
-                row.style.borderRightColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
-                row.style.borderTopColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
-                row.style.borderLeftColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
+                column.style.borderBottomColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
+                column.style.borderRightColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
+                column.style.borderTopColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
+                column.style.borderLeftColor = SchematicGraphEditorWindow.ColorLookupValueType[argType];
             });
 
             dragLabel.RegisterCallback<MouseLeaveEvent>(evt =>
             {
 
-                row.style.borderBottomColor = new Color(0, 0, 0, 0);
-                row.style.borderRightColor = new Color(0, 0, 0, 0);
-                row.style.borderTopColor = new Color(0, 0, 0, 0);
-                row.style.borderLeftColor = new Color(0, 0, 0, 0);
+                column.style.borderBottomColor = Color.gray4;
+                column.style.borderRightColor = new Color(0, 0, 0, 0);
+                column.style.borderTopColor = Color.gray4;
+                column.style.borderLeftColor = new Color(0, 0, 0, 0);
             });
         });
         Texture2D myTexture;
@@ -238,10 +262,12 @@ public class EventContainerRenderer : FieldRenderer
 
         if (argType != null && SchematicGraphEditorWindow.ColorLookupValueType.ContainsKey(argType))
         {
-            row.style.backgroundColor = SchematicGraphEditorWindow.ColorLookupValueType[argType] * new Color(0.8f, 0.8f, 0.8f, 0.1f);
+            column.style.backgroundColor = SchematicGraphEditorWindow.ColorLookupValueType[argType] * new Color(0.8f, 0.8f, 0.8f, 0.1f);
         }
 
-        Add(row);
+        column.Add(row);
+
+        Add(column);
     }
 
 

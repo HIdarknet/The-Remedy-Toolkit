@@ -26,7 +26,7 @@ internal class SchematicEditorEventManager
             return existing;
         else
         {
-            var newEventRef = new ScriptableEventReference(objID, propertyPath, field, defaultType, defaultName, UpdateNodesForEvent);
+            var newEventRef = new ScriptableEventReference(objID, propertyPath, field, defaultType, defaultName, null);
             WorkingSet.Add(newEventRef);
             return newEventRef;
         }
@@ -44,23 +44,4 @@ internal class SchematicEditorEventManager
 
         return null;
     }
-
-    /// <summary>
-    /// Iterates through the Nodes in the Node to ScriptableEventReference caches to Update their Event References.
-    /// </summary>
-    private void UpdateNodesForEvent(GlobalObjectId oldID, GlobalObjectId newID)
-    {
-        var onInvokeNodes = _graph.Nodes.OfType<FlowOnInvokeBase>().Where(node => node.EventID.targetObjectId == oldID.targetObjectId);
-        var invokeNodes = _graph.Nodes.OfType<FlowInvokeBase>().Where(node => node.EventID.targetObjectId == oldID.targetObjectId);
-
-        foreach(var node in onInvokeNodes)
-        {
-            node.EventID = newID;
-        }
-        foreach (var node in invokeNodes)
-        {
-            node.EventID = newID;
-        }
-    }
-
 }

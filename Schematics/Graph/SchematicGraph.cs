@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-//using SaintsField;
-using System.Reflection;
 using Remedy.Schematics.Utils;
 
 #if UNITY_EDITOR
@@ -58,12 +56,12 @@ namespace Remedy.Schematics
         public SerializableDictionary<SerializableType, SchematicEventNode[]> EventNodesByType => _eventNodesByType ??= new(); 
         [HideInInspector]
         [SerializeField]
-        private FlowInvokeBase[] _flowInvokeNodesCache = new FlowInvokeBase[0];
-        public FlowInvokeBase[] FlowInvokeNodesCache => _flowInvokeNodesCache;
+        private InvokeScriptableEvent[] _flowInvokeNodesCache = new InvokeScriptableEvent[0];
+        public InvokeScriptableEvent[] FlowInvokeNodesCache => _flowInvokeNodesCache;
         [HideInInspector]
         [SerializeField]
-        private FlowOnInvokeBase[] _flowOnInvokeNodesCache = new FlowOnInvokeBase[0];
-        public FlowOnInvokeBase[] FlowOnInvokeCache => _flowOnInvokeNodesCache;
+        private OnScriptableEventInvoked[] _flowOnInvokeNodesCache = new OnScriptableEventInvoked[0];
+        public OnScriptableEventInvoked[] FlowOnInvokeCache => _flowOnInvokeNodesCache;
 
 //        [ReadOnly]
         [Tooltip("A Dictionary pairing the Prefab's original Children to the Instantiated copies of them.")]
@@ -147,8 +145,8 @@ namespace Remedy.Schematics
         protected override void ResetExtendedNodeCaches()
         {
             EventNodesByType.Clear();
-            _flowInvokeNodesCache = new FlowInvokeBase[0];
-            _flowOnInvokeNodesCache = new FlowOnInvokeBase[0];
+            _flowInvokeNodesCache = new InvokeScriptableEvent[0];
+            _flowOnInvokeNodesCache = new OnScriptableEventInvoked[0];
         }
 
         protected override void CacheNodeByType(Node node, CacheToAttribute attr)
@@ -177,20 +175,20 @@ namespace Remedy.Schematics
                     EventNodesByType[type] = EventNodesByType[type].Append(eventNode).ToArray();
                 }
 
-                if (typeof(FlowInvokeBase).IsAssignableFrom(type))
+                if (typeof(InvokeScriptableEvent).IsAssignableFrom(type))
                 {
                     if (!_flowInvokeNodesCache.Contains(node))
-                        _flowInvokeNodesCache = _flowInvokeNodesCache.Append((FlowInvokeBase)node).ToArray();
+                        _flowInvokeNodesCache = _flowInvokeNodesCache.Append((InvokeScriptableEvent)node).ToArray();
 
-                    var invokeNode = (FlowInvokeBase)node;
+                    var invokeNode = (InvokeScriptableEvent)node;
                     invokeNode.UpdateCaches();
                 }
-                if (typeof(FlowOnInvokeBase).IsAssignableFrom(type))
+                if (typeof(OnScriptableEventInvoked).IsAssignableFrom(type))
                 {
                     if (!_flowOnInvokeNodesCache.Contains(node))
-                        _flowOnInvokeNodesCache = _flowOnInvokeNodesCache.Append((FlowOnInvokeBase)node).ToArray();
+                        _flowOnInvokeNodesCache = _flowOnInvokeNodesCache.Append((OnScriptableEventInvoked)node).ToArray();
 
-                    var invokeNode = (FlowOnInvokeBase)node;
+                    var invokeNode = (OnScriptableEventInvoked)node;
                     invokeNode.UpdateCaches();
                 }
             }

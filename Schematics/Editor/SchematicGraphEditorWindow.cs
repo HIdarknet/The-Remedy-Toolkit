@@ -166,11 +166,11 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
     /// <summary>
     /// Cached list of all invoke nodes in the current graph for performance optimization.
     /// </summary>
-    private List<FlowInvokeBase> _cachedInvokeNodes = new();
+    private List<InvokeScriptableEvent> _cachedInvokeNodes = new();
     /// <summary>
     /// Cached list of all on-invoke nodes in the current graph for performance optimization.
     /// </summary>
-    private List<FlowOnInvokeBase> _cachedOnInvokeNodes = new();
+    private List<OnScriptableEventInvoked> _cachedOnInvokeNodes = new();
     /// <summary>
     /// Static collection of all editor windows that need to be saved.
     /// This ensures proper cleanup and data persistence across multiple editor instances.
@@ -250,15 +250,24 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
         Canvas.RegisterCallback<DragUpdatedEvent>(OnDragUpdated);
         Canvas.RegisterCallback<DragPerformEvent>(OnDragPerform);
 
+
+        if (_prefabPath == null)
+            _prefabPath = AssetDatabase.GetAssetPath(Prefab);
+
+        SchematicEditorData.Instance.ScriptableEventReferenceDebug = EventManager.WorkingSet;
+
+        Application.focusChanged += Reload;
+        EditorApplication.projectChanged += Canvas.Reload;
+        AssemblyReloadEvents.afterAssemblyReload += Canvas.Reload;
+
+
         foreach (var node in Canvas.Query<NodeView>().ToList())
         {
-            if (node.Target != null && node.Target is FlowInvokeBase invokeFlowNode)
+            if (node.Target != null && node.Target is InvokeScriptableEvent invokeFlowNode)
             {
-                _cachedInvokeNodes.Add(invokeFlowNode);
-
-                if (invokeFlowNode.EventBase != null && TargetEventMap.ContainsKey(invokeFlowNode.EventBase))
+                if (invokeFlowNode.Event != null && TargetEventMap.ContainsKey(invokeFlowNode.Event))
                 {
-                    foreach (var component in TargetEventMap[invokeFlowNode.EventBase])
+                    foreach (var component in TargetEventMap[invokeFlowNode.Event])
                     {
                         var objectField = new ObjectField()
                         {
@@ -272,13 +281,11 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
                 }
             }
 
-            if (node.Target != null && node.Target is FlowOnInvokeBase onInvokeFlowNode)
+            if (node.Target != null && node.Target is OnScriptableEventInvoked onInvokeFlowNode)
             {
-                _cachedOnInvokeNodes.Add(onInvokeFlowNode);
-
-                if (onInvokeFlowNode.EventBase != null && TargetEventMap.ContainsKey(onInvokeFlowNode.EventBase))
+                if (onInvokeFlowNode.Event != null && TargetEventMap.ContainsKey(onInvokeFlowNode.Event))
                 {
-                    foreach (var component in TargetEventMap[onInvokeFlowNode.EventBase])
+                    foreach (var component in TargetEventMap[onInvokeFlowNode.Event])
                     {
                         var objectField = new ObjectField()
                         {
@@ -290,15 +297,6 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
                 }
             }
         }
-
-        if (_prefabPath == null)
-            _prefabPath = AssetDatabase.GetAssetPath(Prefab);
-
-        SchematicEditorData.Instance.ScriptableEventReferenceDebug = EventManager.WorkingSet;
-
-        Application.focusChanged += Reload;
-        EditorApplication.projectChanged += Canvas.Reload;
-        AssemblyReloadEvents.afterAssemblyReload += Canvas.Reload;
     }
 
     private void OnDisable()
@@ -430,7 +428,7 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
                 }
                 else if(obj is ScriptableVariable scriptableVariable)
                 {
-                    // ShowVariableDropMenu(scriptableVariable, dropPosition);
+                    ShowVariableDropMenu(scriptableVariable, dropPosition);
                 }
             }
 
@@ -488,20 +486,9 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
     /// <param name="position">The position to place the new node</param>
     private void CreateInvokeNode(ScriptableEventBase evtAsset, Vector2 position)
     {
-        foreach(var type in FlowInvokeBase.NodeTypes)
-        {
-            if(type.BaseType.GetGenericArguments().Length > 1 && evtAsset.GetType().BaseType.GetGenericArguments().Length > 0)
-            {
-                if (type.BaseType.GetGenericArguments()[1] == evtAsset.GetType().BaseType.GetGenericArguments()[0])
-                {
-                    var node = (FlowInvokeBase)NodeReflection.GetNodeTypes()[type.Name].CreateInstance();
-                    node.EventBase = evtAsset;
-                    node.EventID = GlobalObjectId.GetGlobalObjectIdSlow(evtAsset);
-                    Canvas.AddNodeFromSearch(node, position , null);
-                    return;
-                }
-            }
-        }
+        var node = (InvokeScriptableEvent)NodeReflection.GetNodeTypes()[nameof(InvokeScriptableEvent)].CreateInstance();
+        node.Event = evtAsset;
+        Canvas.AddNodeFromSearch(node, position, null);
     }
 
     /// <summary>
@@ -511,20 +498,9 @@ public class SchematicGraphEditorWindow : GraphEditorWindow
     /// <param name="position">The position to place the new node</param>
     private void CreateOnInvokeNode(ScriptableEventBase evtAsset, Vector2 position)
     {
-        foreach (var type in FlowOnInvokeBase.NodeTypes)
-        {
-            if (type.BaseType.GetGenericArguments().Length > 1 && evtAsset.GetType().BaseType.GetGenericArguments().Length > 0)
-            {
-                if (type.BaseType.GetGenericArguments()[1] == evtAsset.GetType().BaseType.GetGenericArguments()[0])
-                {
-                    var node = (FlowOnInvokeBase)NodeReflection.GetNodeTypes()[type.Name].CreateInstance();
-                    node.EventBase = evtAsset;
-                    node.EventID = GlobalObjectId.GetGlobalObjectIdSlow(evtAsset);
-                    Canvas.AddNodeFromSearch(node, position , null);
-                    return;
-                }
-            }
-        }
+        var node = (OnScriptableEventInvoked)NodeReflection.GetNodeTypes()[nameof(OnScriptableEventInvoked)].CreateInstance();
+        node.Event = evtAsset;
+        Canvas.AddNodeFromSearch(node, position, null);
     }
 
 

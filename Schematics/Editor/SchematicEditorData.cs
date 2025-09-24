@@ -27,11 +27,11 @@ public class SchematicEditorData : SingletonData<SchematicEditorData>
     /// <summary>
     /// A cache storing the Invoke Nodes of the Schematic with the ScriptableEventReference that their Event is from so they can be properly updated.
     /// </summary>
-    public SerializableDictionary<SchematicScope.ScriptableEventReference, List<FlowInvokeBase>> _invokeNodesToReferenceCache = new();
+    public SerializableDictionary<SchematicScope.ScriptableEventReference, List<InvokeScriptableEvent>> _invokeNodesToReferenceCache = new();
     /// <summary>
     /// A cache storing the OnInvoke Nodes of the Schematic with the ScriptableEventReference that their Event is from so they can be properly updated.
     /// </summary>
-    public SerializableDictionary<SchematicScope.ScriptableEventReference, List<FlowOnInvokeBase>> _onInvokeNodesToReferenceCache = new();
+    public SerializableDictionary<SchematicScope.ScriptableEventReference, List<OnScriptableEventInvoked>> _onInvokeNodesToReferenceCache = new();
 
     /// <summary>
     /// Adds Schematic Data for the given item

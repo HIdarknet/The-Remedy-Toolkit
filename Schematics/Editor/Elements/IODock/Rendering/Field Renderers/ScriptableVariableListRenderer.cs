@@ -101,6 +101,7 @@ public class ScriptableVariableListRenderer : FieldRenderer
             DragAndDrop.StartDrag("Drag ScriptableEvent");
             evt.StopPropagation();
         });
+        row.Add(dragLabel);
 
 /*        dragLabel.RegisterCallback<MouseEnterEvent>(evt =>
         {

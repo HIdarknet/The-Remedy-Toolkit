@@ -14,6 +14,7 @@ namespace Remedy.Schematics.Utils
     {
         public enum ValueType : byte
         {
+            Union,
             Bool, Int, Float,
             Vector2, Vector3, Vector4,
             Color, Color32,
@@ -27,6 +28,8 @@ namespace Remedy.Schematics.Utils
 
         public static readonly Dictionary<ValueType, Type> TypeLookup = new()
         {
+            { ValueType.Union, typeof(Union) },
+
             { ValueType.Bool, typeof(bool) },
             { ValueType.Int, typeof(int) },
             { ValueType.Float, typeof(float) },
@@ -87,6 +90,13 @@ namespace Remedy.Schematics.Utils
         public Union(PhysicsMaterial value) : this() { Type = ValueType.PhysicsMaterial; HeapValue = value; }
         public Union(List<Union> value) : this() { Type = ValueType.List; HeapValue = value; }
         public Union(Array value) : this() { Type = ValueType.List; HeapValue = value; }
+        public Union(Union value) : this() 
+        { 
+            Type = ValueType.Union; 
+            HeapValue = value;
+            StackValue = value;
+        }
+
         public Union(Scene scene) : this()
         {
             Type = ValueType.Scene;
